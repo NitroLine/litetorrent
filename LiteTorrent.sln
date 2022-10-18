@@ -1,0 +1,27 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_auxiliary", "_auxiliary", "{476D051F-A554-4BDE-AFEC-1A2B3D0944ED}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tracker", "Tracker", "{B41C45F9-854F-415B-A156-41AB4C562BE0}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Traker.Sdk", "Traker.Sdk", "{BCBD3398-BF59-4EF4-AD0B-5BD858C24104}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Client", "Client", "{9CBC7504-9826-4B2B-927A-F42788D6889F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tracker", "src\Tracker\Tracker.csproj", "{6CDB22C3-41A6-4CB8-B554-B339DD3641CD}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{6CDB22C3-41A6-4CB8-B554-B339DD3641CD} = {B41C45F9-854F-415B-A156-41AB4C562BE0}
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6CDB22C3-41A6-4CB8-B554-B339DD3641CD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6CDB22C3-41A6-4CB8-B554-B339DD3641CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6CDB22C3-41A6-4CB8-B554-B339DD3641CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6CDB22C3-41A6-4CB8-B554-B339DD3641CD}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

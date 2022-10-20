@@ -7,8 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\LiteTorrent.Sdk\LiteTorrent.Sdk.csproj" />
-      <ProjectReference Include="..\NatPuncher.Client\NatPuncher.Client.csproj" />
+      <PackageReference Include="System.Linq.Async" Version="6.0.1" />
     </ItemGroup>
 
 </Project>

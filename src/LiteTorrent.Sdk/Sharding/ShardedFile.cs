@@ -11,7 +11,7 @@ public record ShardedFile(
     Hash Hash
 )
 {
-    public async IAsyncEnumerable<Shard> GetMissingShards(
+    public async IAsyncEnumerable<Shard> GetMissingShards( // TODO: to other class
         FileInfo fileInfo, 
         [EnumeratorCancellation] CancellationToken cancellationToken)
     {
@@ -29,7 +29,7 @@ public record ShardedFile(
         }
     }
     
-    public static async Task<ShardedFile> Create(
+    public static async Task<ShardedFile> Create( // TODO: to other class
         FileInfo fileInfo, 
         int shardSizeInBytes, 
         CancellationToken cancellationToken)

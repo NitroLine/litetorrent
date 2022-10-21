@@ -1,8 +1,8 @@
 ﻿using LiteTorrent.Sdk.Sharding;
 
-namespace LiteTorrent.Sdk;
+namespace LiteTorrent.Sdk.DataExchange;
 
-public class DistributionContext
+public class Distribution
 {
     public List<ShardedFile> DistributingFiles { get; }
 }

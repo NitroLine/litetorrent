@@ -2,5 +2,5 @@
 
 namespace LiteTorrent.Tracker.Client.Domain;
 
-public record Peer(Guid Id, IPAddress Ip, int Port);
+public record Peer(IPEndPoint EndPont);
 

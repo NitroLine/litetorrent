@@ -1,7 +1,7 @@
 ﻿using System.Security.Cryptography;
 using LiteTorrent.Domain;
 
-namespace LiteTorrent.Infra;
+namespace LiteTorrent.Domain;
 
 public static class Utils
 {

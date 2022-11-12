@@ -2,25 +2,26 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Web;
-using LiteTorrent.Domain;
-using LiteTorrent.Tracker.Client.Domain;
+using LiteTorrent.Infra;
 using Newtonsoft.Json;
 
 namespace LiteTorrent.Tracker.Client;
 
 public class TrackerClient : ITrackerClient
 {
-    private static readonly HttpClient client = new HttpClient();
+    private readonly bool _raiseException;
+    private readonly HttpClient _client = new HttpClient();
 
-    public TrackerClient(Uri trackerUri)
+    public TrackerClient(Uri trackerUri, bool raiseException = true)
     {
+        _raiseException = raiseException;
         TrackerUri = trackerUri;
     }
 
     public Guid Uid { get; private set; }
     public Uri TrackerUri { get; private set; }
     
-    public async Task Register(IPEndPoint? clientEndpoint, IReadOnlyList<Hash> shareFilesIds)
+    public async Task Register(IPEndPoint clientEndpoint, IReadOnlyList<Hash> shareFilesIds)
     {
         var peersUrl = TrackerUri.AbsolutePath + "/peers";
         var data = new { publicAddress = new
@@ -28,7 +29,7 @@ public class TrackerClient : ITrackerClient
             ip = clientEndpoint.Address.ToString(),
             port = clientEndpoint.Port
         }, distributingFiles = shareFilesIds.Select((x) => x.ToString()).ToArray() };
-        var response = await client.PostAsJsonAsync(peersUrl, data); 
+        var response = await _client.PostAsJsonAsync(peersUrl, data); 
         response.EnsureSuccessStatusCode();
         var jsonString = await response.Content.ReadAsStringAsync();
         var content = JsonConvert.DeserializeObject<RegisterResponse>(jsonString);
@@ -39,27 +40,29 @@ public class TrackerClient : ITrackerClient
     public async Task Unregister()
     {
         var peersUrl = TrackerUri.AbsolutePath + "/peers/" + Uid;
-        var response = await client.DeleteAsync(peersUrl); 
-        // response.EnsureSuccessStatusCode();
+        var response = await _client.DeleteAsync(peersUrl); 
+        if (_raiseException)
+            response.EnsureSuccessStatusCode();
     }
 
     public async Task Update(IReadOnlyList<Hash> shareFilesIds)
     {
         var peersUrl = TrackerUri.AbsolutePath + "/peers/" + Uid;
         var data = new { distributingFiles = shareFilesIds.Select((x) => x.ToString()).ToArray() };
-        var response = await client.PutAsJsonAsync(peersUrl, data); 
-        // response.EnsureSuccessStatusCode();
+        var response = await _client.PutAsJsonAsync(peersUrl, data); 
+        if (_raiseException)
+         response.EnsureSuccessStatusCode();
     }
 
     public async Task<IEnumerable<Peer>> GetPeers(Hash fileId)
     {
         var builder = new UriBuilder(TrackerUri.AbsolutePath);
-        builder.Port = -1;
+        // builder.Port = -1;
         var query = HttpUtility.ParseQueryString(builder.Query);
         query["fileId"] = fileId.ToString();
         builder.Query = query.ToString();
         var peersUrl = builder.ToString();
-        var response = await client.GetAsync(peersUrl); 
+        var response = await _client.GetAsync(peersUrl);
         if (!response.IsSuccessStatusCode)
             return Enumerable.Empty<Peer>();
         var jsonString = await response.Content.ReadAsStringAsync();

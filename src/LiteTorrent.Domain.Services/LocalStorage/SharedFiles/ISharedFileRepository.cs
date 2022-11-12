@@ -1,4 +1,6 @@
-﻿namespace LiteTorrent.Domain.Services.LocalStorage.SharedFiles;
+﻿using LiteTorrent.Infra;
+
+namespace LiteTorrent.Domain.Services.LocalStorage.SharedFiles;
 
 public interface ISharedFileRepository
 {

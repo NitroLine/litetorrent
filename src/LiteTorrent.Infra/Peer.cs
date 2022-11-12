@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-namespace LiteTorrent.Tracker.Client.Domain;
+namespace LiteTorrent.Infra;
 
 public record Peer(IPEndPoint EndPont);
 

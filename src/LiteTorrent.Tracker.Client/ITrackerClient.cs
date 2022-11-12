@@ -1,6 +1,5 @@
 ﻿using System.Net;
-using LiteTorrent.Domain;
-using LiteTorrent.Tracker.Client.Domain;
+using LiteTorrent.Infra;
 
 namespace LiteTorrent.Tracker.Client;
 

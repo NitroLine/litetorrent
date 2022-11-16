@@ -21,15 +21,17 @@ public class TrackerClient : ITrackerClient
     public Guid Uid { get; private set; }
     public Uri TrackerUri { get; private set; }
     
-    public async Task Register(IPEndPoint clientEndpoint, IReadOnlyList<Hash> shareFilesIds)
+    public async Task Register(IPEndPoint clientEndpoint)
     {
-        var peersUrl = TrackerUri.AbsolutePath + "/peers";
+        var peersUrl = TrackerUri.AbsoluteUri + "peers";
         var data = new { publicAddress = new
         {
             ip = clientEndpoint.Address.ToString(),
             port = clientEndpoint.Port
-        }, distributingFiles = shareFilesIds.Select((x) => x.ToString()).ToArray() };
+        } 
+        };
         var response = await _client.PostAsJsonAsync(peersUrl, data); 
+        
         response.EnsureSuccessStatusCode();
         var jsonString = await response.Content.ReadAsStringAsync();
         var content = JsonConvert.DeserializeObject<RegisterResponse>(jsonString);
@@ -39,7 +41,7 @@ public class TrackerClient : ITrackerClient
 
     public async Task Unregister()
     {
-        var peersUrl = TrackerUri.AbsolutePath + "/peers/" + Uid;
+        var peersUrl = TrackerUri.AbsoluteUri + "peers/" + Uid;
         var response = await _client.DeleteAsync(peersUrl); 
         if (_raiseException)
             response.EnsureSuccessStatusCode();
@@ -47,7 +49,7 @@ public class TrackerClient : ITrackerClient
 
     public async Task Update(IReadOnlyList<Hash> shareFilesIds)
     {
-        var peersUrl = TrackerUri.AbsolutePath + "/peers/" + Uid;
+        var peersUrl = TrackerUri.AbsoluteUri + "peers/" + Uid;
         var data = new { distributingFiles = shareFilesIds.Select((x) => x.ToString()).ToArray() };
         var response = await _client.PutAsJsonAsync(peersUrl, data); 
         if (_raiseException)
@@ -56,10 +58,10 @@ public class TrackerClient : ITrackerClient
 
     public async Task<IEnumerable<Peer>> GetPeers(Hash fileId)
     {
-        var builder = new UriBuilder(TrackerUri.AbsolutePath);
+        var builder = new UriBuilder(TrackerUri.AbsoluteUri + "peers");
         // builder.Port = -1;
         var query = HttpUtility.ParseQueryString(builder.Query);
-        query["fileId"] = fileId.ToString();
+        query["field"] = fileId.ToString();
         builder.Query = query.ToString();
         var peersUrl = builder.ToString();
         var response = await _client.GetAsync(peersUrl);

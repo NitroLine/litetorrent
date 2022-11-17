@@ -1,6 +1,6 @@
 ﻿using System.Security.Cryptography;
 
-namespace LiteTorrent.Domain;
+namespace LiteTorrent.Infra;
 
 public readonly struct Hash
 {

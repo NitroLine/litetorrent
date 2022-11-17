@@ -1,4 +1,6 @@
-﻿namespace LiteTorrent.Domain.Services.LocalStorage.Shards;
+﻿using LiteTorrent.Infra;
+
+namespace LiteTorrent.Domain.Services.LocalStorage.Shards;
 
 public interface IShardRepository
 {

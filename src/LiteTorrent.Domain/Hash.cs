@@ -29,6 +29,11 @@ public readonly struct Hash
     {
         return !(hash1 == hash2);
     }
+
+    public Hash Concat(Hash hash2)
+    {
+        return CreateFromRaw(sha256Data.Concat(hash2.sha256Data).ToArray());
+    }
     
     // ReSharper disable once MemberCanBePrivate.Global
     public bool Equals(Hash other)

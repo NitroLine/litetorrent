@@ -30,7 +30,6 @@ public class ShardReader
         var shardIndexByHash = new Dictionary<Hash, ulong>();
         for (var i = 0u; i < sharedFile.ShardHashes.Count; i++)
             shardIndexByHash[sharedFile.ShardHashes[(int)i]] = i; // TODO: delete casts uint to int?
-        
         return new ShardReader(
             sharedFile, 
             basePath, 

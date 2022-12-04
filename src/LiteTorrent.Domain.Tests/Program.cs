@@ -12,7 +12,17 @@ var merkleTree = new MerkelTree(13, GetHash("1234").Concat(GetHash("5")).Concat(
 
 var a = merkleTree.TryAdd(9, GetHash("6"), new[] { GetHash("5"), GetHash("7"), GetHash("8"), GetHash("1234") });
 Console.WriteLine(a);
-
-var buildedTree = new MerkelTree(new[] { GetHash("5"), GetHash("7"), GetHash("8"), GetHash("1"), GetHash("2"), GetHash("3"), GetHash("4"), GetHash("23") });
+var data = new[]
+    { GetHash("5"), GetHash("7"), GetHash("8"), GetHash("1"), GetHash("2"), GetHash("3"), GetHash("4"), GetHash("23") };
+var buildedTree = new MerkelTree(data);
 Console.WriteLine(buildedTree.RootHash);
+var rootHash = buildedTree.RootHash;
+foreach (var hash in buildedTree.GetPath(1))
+{
+    Console.WriteLine(hash);
+}
+
+var path = buildedTree.GetPath(2);
+var newTree = new MerkelTree(data.Length, rootHash);
+Console.WriteLine(newTree.TryAdd(2, data[2], path.ToArray()));
 

@@ -66,6 +66,14 @@ public class MerkelTree
 
         return true;
     }
+    
+    public IEnumerable<Hash> GetPath(int index)
+    {
+        var (leafIndex, treeIndex) = GetIndexes(index);
+        var currIndex = leafIndex + trees[treeIndex].Length - leafCounts[treeIndex];
+        var itemHash = trees[treeIndex][currIndex];
+        return GetTreePath(itemHash, treeIndex, currIndex);
+    }
 
     private (int leafIndex, int treeIndex) GetIndexes(int index)
     {
@@ -115,6 +123,60 @@ public class MerkelTree
         addQueue.Enqueue(new Action(-1, treeIndex + 1, path[pathIndex]));
         var right = path[pathIndex];
         return ComputeRootHash(lastHash.Concat(right), treeIndex - 1, ++pathIndex, path);
+    }
+    
+    private IEnumerable<Hash> GetTreePath(Hash lastHash, int arrayIndex, int index)
+    {
+        if (index == 0)
+        {
+            var treeIndex = arrayIndex * 2 + (arrayIndex == rootTree.Length - 1 ? 0 : 1);
+            foreach (var hash in  GetRootPath(lastHash, treeIndex))
+            {
+                yield return hash;
+            }
+            yield break;
+        }
+        if (index % 2 == 0)
+        {
+            var left = trees[arrayIndex][index - 1];
+            yield return left;
+            foreach (var hash in  GetTreePath(left.Concat(lastHash), arrayIndex,(index - 1) / 2))
+            {
+                yield return hash;
+            }
+            yield break;
+        }
+        var right = trees[arrayIndex][index + 1];
+        yield return right;
+        foreach (var hash in  GetTreePath(lastHash.Concat(right), arrayIndex,(index - 1) / 2))
+        {
+            yield return hash;
+        }
+    }
+
+    private IEnumerable<Hash> GetRootPath(Hash lastHash, int treeIndex)
+    {
+        if (treeIndex == 0)
+        {
+           
+            yield break;
+        }
+        if (treeIndex % 2 == 0)
+        {
+            var left = rootTree[treeIndex - 1];
+            yield return left;
+            foreach (var hash in  GetRootPath(left.Concat(lastHash), treeIndex - 2))
+            {
+                yield return hash;
+            }
+            yield break;
+        }
+        var right = rootTree[treeIndex + 1];
+        yield return right;
+        foreach (var hash in  GetRootPath(lastHash.Concat(right), treeIndex - 1))
+        {
+            yield return hash;
+        }
     }
 
     private Hash BuildAllTree(Hash[] pieces)

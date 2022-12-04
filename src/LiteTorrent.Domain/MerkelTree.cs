@@ -12,7 +12,7 @@ public class MerkelTree
     private readonly List<Hash[]> trees = new();
     private readonly Hash[] rootTree;
     private readonly List<int> leafCounts = new();
-    public readonly Hash RootHash; 
+    public Hash RootHash { get; private set; }
 
     private readonly Queue<Action> addQueue = new();
 
@@ -43,6 +43,7 @@ public class MerkelTree
 
     public MerkelTree(Hash[] pieces) : this(pieces.Length)
     {
+        BuildAllTree(pieces);
     }
     
 
@@ -70,7 +71,7 @@ public class MerkelTree
     {
         var leafIndex = index;
         var treeIndex = 0;
-        for (; leafIndex > leafCounts[treeIndex]; ++treeIndex)
+        for (; leafIndex >= leafCounts[treeIndex]; ++treeIndex)
         {
             leafIndex -= leafCounts[treeIndex];
         }
@@ -83,7 +84,7 @@ public class MerkelTree
         addQueue.Enqueue(new Action(arrayIndex, index, lastHash));
         if (index == 0)
         {
-            var treeIndex = arrayIndex * 2 + (arrayIndex == trees.Count - 1 ? 0 : 1);
+            var treeIndex = arrayIndex * 2 + (arrayIndex == rootTree.Length - 1 ? 0 : 1);
             return ComputeRootHash(lastHash, treeIndex, pathIndex, path);
         }
         
@@ -118,20 +119,44 @@ public class MerkelTree
 
     private Hash BuildAllTree(Hash[] pieces)
     {
-        var treeIndex = 0;
+        var pieceIndex = 0;
         for (var i = 0; i < trees.Count; i++)
         {
-            var (_, leafIndex) = GetIndexes(treeIndex);
-            for (var j = leafIndex; j < leafIndex + leafCounts[i]; ++j)
+            var (leafIndex, treeIndex) = GetIndexes(pieceIndex);
+            var curIndex = leafIndex + trees[treeIndex].Length - leafCounts[treeIndex];
+            for (var j = curIndex; j < curIndex + leafCounts[i]; ++j)
             {
-                trees[i][j] = pieces[treeIndex++];
+                trees[i][j] = pieces[pieceIndex++];
             }
         }
-        
+        RootHash = BuildTree(-1, 0);
+        return RootHash;
     }
 
     private Hash BuildTree(int treeIndex, int index)
     {
-        if (treeIndex % 2 != 0 || treeIndex == trees.Count - 1)
+        if (treeIndex == -1)
+        {
+            if (index % 2 != 0 || index == rootTree.Length - 1)
+            {
+                var calcHash =  BuildTree(index / 2, 0);
+                rootTree[index] = calcHash;
+                return calcHash;
+            }
+            var left = BuildTree(-1, index + 1);
+            var right = BuildTree(-1, index + 2);
+            var calcHash2 = left.Concat(right);
+            rootTree[index] = calcHash2;
+            return calcHash2;
+        }
+        var leafStart = trees[treeIndex].Length - leafCounts[treeIndex];
+        if (index >= leafStart) {
+            return trees[treeIndex][index];
+        }
+        var leftTreeHash = BuildTree(treeIndex, index * 2 + 1);
+        var rightTreeHash = BuildTree(treeIndex, index * 2 + 2);
+        var calcHash3 = leftTreeHash.Concat(rightTreeHash);
+        trees[treeIndex][index] = calcHash3;
+        return calcHash3;
     }
 }

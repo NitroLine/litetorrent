@@ -45,7 +45,11 @@ public class MerkelTree
     {
         BuildAllTree(pieces);
     }
-    
+
+    public (List<Hash[]> Trees, Hash[] RootTree, Hash RootHash) GetInnerData()
+    {
+        return (trees, rootTree, RootHash);
+    }
 
     public bool TryAdd(int index, Hash itemHash, Hash[] path)
     {

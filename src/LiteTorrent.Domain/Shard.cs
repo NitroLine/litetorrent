@@ -1,3 +1,3 @@
 ﻿namespace LiteTorrent.Domain;
 
-public record Shard(Hash Hash, ReadOnlyMemory<byte> Data);
+public record struct Shard(ulong Index, ReadOnlyMemory<byte> Data);

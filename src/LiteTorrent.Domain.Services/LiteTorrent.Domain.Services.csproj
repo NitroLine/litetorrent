@@ -20,7 +20,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="InterProcessProtocol\Client" />
       <Folder Include="TorrentProtocol" />
     </ItemGroup>
 

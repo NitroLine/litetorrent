@@ -5,15 +5,15 @@ using LiteTorrent.Domain.Services.LocalStorage.SharedFiles;
 using MessagePack;
 using MessagePipe;
 
-namespace LiteTorrent.Domain.Services.InterProcessProtocol.Server.Commands;
+namespace LiteTorrent.Domain.Services.Commands;
 
 [MessagePackObject]
 public record CreateSharedFileCommand(
-    [property: Key(0)] IReadOnlyList<DnsEndPoint> Trackers,
-    [property: Key(1)] string RelativePath, 
-    [property: Key(2)] ulong SizeInBytes,
-    [property: Key(3)] uint ShardMaxSizeInBytes,
-    [property: Key(4)] string OutputFileAbsolutePath
+    IReadOnlyList<DnsEndPoint> Trackers,
+    string RelativePath, 
+    ulong SizeInBytes,
+    uint ShardMaxSizeInBytes,
+    string OutputFileAbsolutePath
 );
 
 public class CreateSharedFileCommandHandler

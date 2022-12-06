@@ -2,7 +2,7 @@
 using LiteTorrent.Domain.Services.LocalStorage.SharedFiles;
 using MessagePipe;
 
-namespace LiteTorrent.Domain.Services.InterProcessProtocol.Server.Commands;
+namespace LiteTorrent.Domain.Services.Commands;
 
 public record AddSharedFileCommand(Hash FileHash, SharedFileCreateInfo CreateInfo);
 

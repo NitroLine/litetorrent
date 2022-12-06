@@ -19,9 +19,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiteTorrent.Core", "src\Lit
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiteTorrent.Domain.Tests", "src\LiteTorrent.Domain.Tests\LiteTorrent.Domain.Tests.csproj", "{55088328-F270-4D0D-AF17-05E46E0AD4D4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiteTorrent.Client.Backend", "src\LiteTorrent.Client.Backend\LiteTorrent.Client.Backend.csproj", "{0E6AF7AF-B46E-4E20-AF94-59CF624106C1}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiteTorrent.Client.Frontend.Cli", "src\LiteTorrent.Client.Frontend.Cli\LiteTorrent.Client.Frontend.Cli.csproj", "{536B1679-0D62-47A3-851A-C6098E445FA9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiteTorrent.Client.Cli", "src\LiteTorrent.Client.Cli\LiteTorrent.Client.Cli.csproj", "{536B1679-0D62-47A3-851A-C6098E445FA9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,7 +33,6 @@ Global
 		{16AF02A4-8A08-4959-9AB1-BD434C4C4C91} = {7238518E-1F03-4B77-A955-4FBAC8E3C981}
 		{0D12AA7C-DC1D-48F7-80DA-7B4A6180F5EF} = {7238518E-1F03-4B77-A955-4FBAC8E3C981}
 		{55088328-F270-4D0D-AF17-05E46E0AD4D4} = {7238518E-1F03-4B77-A955-4FBAC8E3C981}
-		{0E6AF7AF-B46E-4E20-AF94-59CF624106C1} = {9CBC7504-9826-4B2B-927A-F42788D6889F}
 		{536B1679-0D62-47A3-851A-C6098E445FA9} = {9CBC7504-9826-4B2B-927A-F42788D6889F}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
@@ -55,10 +52,6 @@ Global
 		{55088328-F270-4D0D-AF17-05E46E0AD4D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{55088328-F270-4D0D-AF17-05E46E0AD4D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{55088328-F270-4D0D-AF17-05E46E0AD4D4}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0E6AF7AF-B46E-4E20-AF94-59CF624106C1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0E6AF7AF-B46E-4E20-AF94-59CF624106C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0E6AF7AF-B46E-4E20-AF94-59CF624106C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0E6AF7AF-B46E-4E20-AF94-59CF624106C1}.Release|Any CPU.Build.0 = Release|Any CPU
 		{536B1679-0D62-47A3-851A-C6098E445FA9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{536B1679-0D62-47A3-851A-C6098E445FA9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{536B1679-0D62-47A3-851A-C6098E445FA9}.Release|Any CPU.ActiveCfg = Release|Any CPU

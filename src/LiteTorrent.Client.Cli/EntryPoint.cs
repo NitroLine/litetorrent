@@ -1,7 +1,7 @@
 ﻿using System.IO.Pipes;
 using System.Text;
 
-namespace LiteTorrent.Client.Frontend.Cli;
+namespace LiteTorrent.Client.Cli;
 
 public static class EntryPoint
 {
@@ -11,10 +11,9 @@ public static class EntryPoint
         // TODO: loading existing torrent file
         
         // lt --help
-        // lt start -> start backend daemon
-        // lt stop -> stop backend daemon
-        // lt create <raw file relative path> -> creating torrent file and return it
-        // lt add <torrent file> -> add torrent file to distribution
+        // lt start -> start interactive mode
+        // create <raw file relative path> -> creating torrent file and return it
+        // add <torrent file path> -> add torrent file to distribution
 
         await using var client = new NamedPipeClientStream("LiteTorrentServer");
         Console.WriteLine("Try to connect");

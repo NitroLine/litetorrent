@@ -1,19 +1,19 @@
 ﻿using System.Net;
 using LiteTorrent.Core;
-using LiteTorrent.Domain.Services.InterProcessProtocol.Server.Serialization;
+using LiteTorrent.Domain.Services.Common.Serialization;
 using LiteTorrent.Domain.Services.LocalStorage.SharedFiles;
 using MessagePack;
 using MessagePipe;
 
-namespace LiteTorrent.Domain.Services.Commands;
+namespace LiteTorrent.Domain.Services.Commands.CreateSharedFile;
 
 [MessagePackObject]
 public record CreateSharedFileCommand(
-    IReadOnlyList<DnsEndPoint> Trackers,
-    string RelativePath, 
-    ulong SizeInBytes,
-    uint ShardMaxSizeInBytes,
-    string OutputFileAbsolutePath
+    [property: Key(0)] IReadOnlyList<DnsEndPoint> Trackers,
+    [property: Key(1)] string RelativePath,
+    [property: Key(2)] ulong SizeInBytes,
+    [property: Key(3)] uint ShardMaxSizeInBytes,
+    [property: Key(4)] string OutputFileAbsolutePath
 );
 
 public class CreateSharedFileCommandHandler

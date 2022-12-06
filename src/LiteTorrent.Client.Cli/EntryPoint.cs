@@ -1,5 +1,11 @@
-﻿using System.IO.Pipes;
-using System.Text;
+﻿using LiteTorrent.Domain.Services.Common;
+using LiteTorrent.Domain.Services.LocalStorage.HashTrees;
+using LiteTorrent.Domain.Services.LocalStorage.Shards;
+using LiteTorrent.Domain.Services.LocalStorage.SharedFiles;
+using MessagePipe;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace LiteTorrent.Client.Cli;
 
@@ -14,24 +20,34 @@ public static class EntryPoint
         // lt start -> start interactive mode
         // create <raw file relative path> -> creating torrent file and return it
         // add <torrent file path> -> add torrent file to distribution
+        
+        // TODO: Services: CLI, Server (distributing)
 
-        await using var client = new NamedPipeClientStream("LiteTorrentServer");
-        Console.WriteLine("Try to connect");
-        await client.ConnectAsync();
-        Console.WriteLine("Connected");
+        var commonConfig = new ConfigurationBuilder()
+            .AddJsonFile("appsettings.json")
+            .Build();
+
+        var localStorageConfiguration = new ConfigurationParser(commonConfig).GetLocalStorageConfiguration();
+
+        var host = Host
+            .CreateDefaultBuilder()
+            .ConfigureServices(services =>
+            {
+                services.AddMessagePipe();
+                
+                services
+                    .AddSingleton(localStorageConfiguration)
+                    .AddSingleton<SharedFileRepository>()
+                    .AddSingleton<ShardRepository>()
+                    .AddSingleton<HashTreeRepository>();
+                    
+                services.AddHostedService<CliService>();
+            })
+            .Build();
 
         var cancelSource = new CancellationTokenSource();
-        Console.CancelKeyPress += (_, _) => cancelSource.Cancel(); 
-        
-        while (!cancelSource.Token.IsCancellationRequested)
-        {
-            var message = Console.ReadLine() ?? "Some data";
-            await client.WriteAsync(Encoding.UTF8.GetBytes(message), cancelSource.Token);
-            Console.WriteLine($"Sent: {message}");
-            
-            var buffer = new Memory<byte>(new byte[1024]);
-            var count = await client.ReadAsync(buffer, cancelSource.Token);
-            Console.WriteLine($"Received: {Encoding.UTF8.GetString(buffer[..count].Span)}");
-        }
+        Console.CancelKeyPress += (_, _) => cancelSource.Cancel();
+
+        await host.RunAsync(cancelSource.Token);
     }
 }

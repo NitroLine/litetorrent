@@ -1,13 +1,13 @@
 ﻿using System.Net;
 using MessagePack;
 
-namespace LiteTorrent.Domain.Services.InterProcessProtocol.Server.Serialization;
+namespace LiteTorrent.Domain.Services.Commands;
 
 [MessagePackObject]
 public record DtoSharedFile(
-    [property: Key(0)] Hash RootHash,
-    [property: Key(1)] IReadOnlyList<DnsEndPoint> Trackers,
-    [property: Key(2)] string RelativePath, 
-    [property: Key(3)] ulong SizeInBytes,
-    [property: Key(4)] uint ShardMaxSizeInBytes
+    [property: Key("Hash")] Hash Hash,
+    [property: Key("Trackers")] IReadOnlyList<DnsEndPoint> Trackers,
+    [property: Key("RelativePath")] string RelativePath, 
+    [property: Key("SizeInBytes")] ulong SizeInBytes,
+    [property: Key("ShardMaxSizeInBytes")] uint ShardMaxSizeInBytes
 );

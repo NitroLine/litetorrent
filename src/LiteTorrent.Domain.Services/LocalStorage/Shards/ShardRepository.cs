@@ -22,9 +22,7 @@ public class ShardRepository
         if (getResult.TryGetError(out var sharedFile, out var error))
             throw new InvalidOperationException(error.Message);
         
-        return new ShardWriter(
-            sharedFile, 
-            configuration.ShardDirectoryPath);
+        return new ShardWriter(sharedFile, configuration.ShardDirectoryPath);
     }
 
     public async Task<ShardReader> CreateReader(Hash fileHash, CancellationToken cancellationToken)
@@ -33,8 +31,6 @@ public class ShardRepository
         if (getResult.TryGetError(out var sharedFile, out var error))
             throw new InvalidOperationException(error.Message);
         
-        return new ShardReader(
-            sharedFile, 
-            configuration.ShardDirectoryPath);
+        return new ShardReader(sharedFile, configuration.ShardDirectoryPath);
     }
 }

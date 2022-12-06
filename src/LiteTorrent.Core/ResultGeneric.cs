@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
-namespace LiteTorrent.Infra;
+namespace LiteTorrent.Core;
 
 public readonly struct Result<TValue>
 {

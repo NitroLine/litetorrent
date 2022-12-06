@@ -12,8 +12,7 @@ public readonly struct Hash
     }
 
     public ReadOnlyMemory<byte> Data => sha256Data;
-
-    // TODO: Result<Hash>
+    
     public static Hash CreateFromRaw(ReadOnlyMemory<byte> rawData)
     {
         using var algorithm = SHA256.Create();

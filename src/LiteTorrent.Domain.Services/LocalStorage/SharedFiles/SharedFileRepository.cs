@@ -1,8 +1,8 @@
-﻿using LiteTorrent.Domain.Services.LocalStorage.Common;
+﻿using LiteTorrent.Core;
+using LiteTorrent.Domain.Services.LocalStorage.Common;
 using LiteTorrent.Domain.Services.LocalStorage.Configuration;
 using LiteTorrent.Domain.Services.LocalStorage.HashTrees;
-using LiteTorrent.Domain.Services.Serialization;
-using LiteTorrent.Infra;
+using LiteTorrent.Domain.Services.LocalStorage.Serialization;
 using MessagePack;
 using SimpleBase;
 
@@ -25,10 +25,12 @@ public class SharedFileRepository
     /// Can be used for seeding
     /// </summary>
     public async Task<Result<Hash>> Create(
-        Stream dataStream,
         SharedFileCreateInfo sharedFileInfo, 
         CancellationToken cancellationToken)
     {
+        var rawFilePath = Path.Join(configuration.SharedFileDirectoryPath, sharedFileInfo.RelativePath);
+        await using var dataStream = new FileStream(rawFilePath, FileMode.Open, FileAccess.Read);
+        
         var shardHashes = await LocalStorageHelper
             .SplitData(dataStream, sharedFileInfo.ShardMaxSizeInBytes, cancellationToken)
             .Select(shard => Hash.CreateFromRaw(shard.Data))
@@ -46,9 +48,10 @@ public class SharedFileRepository
     }
     
     /// <summary>
-    /// Save in storage with id = hash
+    /// Save in storage with id = hash.
+    /// Useful for save shared file that was downloaded from remote sources.   
     /// </summary>
-    public async Task<Result<Hash>> Create(
+    public async Task<Result<Unit>> Create(
         Hash hash, 
         SharedFileCreateInfo createInfo, 
         CancellationToken cancellationToken)
@@ -59,10 +62,8 @@ public class SharedFileRepository
 
         var hashTree = new MerkelTree((int)(dto.SizeInBytes / dto.ShardMaxSizeInBytes), hash);
         var saveResult = await hashTreeRepository.CreateOrReplace(hashTree);
-        if (saveResult.TryGetError(out _, out var error))
-            return error;
-
-        return hash;
+        
+        return saveResult.TryGetError(out _, out var error) ? error : Result.Ok;
     }
 
     public async Task<Result<SharedFile>> Get(Hash hash, CancellationToken cancellationToken)

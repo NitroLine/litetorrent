@@ -1,7 +1,7 @@
-﻿using LiteTorrent.Domain.Services.LocalStorage.Common;
+﻿using LiteTorrent.Core;
+using LiteTorrent.Domain.Services.LocalStorage.Common;
 using LiteTorrent.Domain.Services.LocalStorage.Configuration;
-using LiteTorrent.Domain.Services.Serialization;
-using LiteTorrent.Infra;
+using LiteTorrent.Domain.Services.LocalStorage.Serialization;
 using MessagePack;
 using SimpleBase;
 
@@ -47,7 +47,7 @@ public class HashTreeRepository
 
     private FileStream GetFileStream(Hash rootHash)
     {
-        var path = Path.Join(configuration.ShardDirectoryPath, Base32.Rfc4648.Encode(rootHash.Data.Span));
+        var path = Path.Join(configuration.HashTreeDirectoryPath, Base32.Rfc4648.Encode(rootHash.Data.Span));
         return LocalStorageHelper.GetFileStreamToWrite(path);
     }
 }

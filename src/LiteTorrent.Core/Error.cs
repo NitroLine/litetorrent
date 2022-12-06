@@ -1,4 +1,4 @@
-﻿namespace LiteTorrent.Infra;
+﻿namespace LiteTorrent.Core;
 
 public class Error
 {

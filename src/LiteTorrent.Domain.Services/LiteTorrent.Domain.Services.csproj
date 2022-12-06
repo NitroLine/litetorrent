@@ -8,17 +8,20 @@
 
     <ItemGroup>
       <ProjectReference Include="..\LiteTorrent.Domain\LiteTorrent.Domain.csproj" />
-      <ProjectReference Include="..\LiteTorrent.Infra\LiteTorrent.Infra.csproj" />
+      <ProjectReference Include="..\LiteTorrent.Core\LiteTorrent.Core.csproj" />
     </ItemGroup>
 
     <ItemGroup>
       <PackageReference Include="MessagePack" Version="2.4.59" />
+      <PackageReference Include="MessagePipe" Version="1.7.4" />
+      <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="7.0.0" />
       <PackageReference Include="SimpleBase" Version="4.0.0" />
       <PackageReference Include="System.Linq.Async" Version="6.0.1" />
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Exchange" />
+      <Folder Include="InterProcessProtocol\Client" />
+      <Folder Include="TorrentProtocol" />
     </ItemGroup>
 
 </Project>

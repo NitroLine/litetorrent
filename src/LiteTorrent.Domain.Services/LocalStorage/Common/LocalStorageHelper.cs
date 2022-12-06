@@ -1,5 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
-using LiteTorrent.Domain.Services.Serialization;
+using LiteTorrent.Domain.Services.Common.Serialization;
 using MessagePack;
 using MessagePack.Resolvers;
 using SimpleBase;

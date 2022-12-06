@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using MessagePack;
 
-namespace LiteTorrent.Domain.Services.Serialization;
+namespace LiteTorrent.Domain.Services.LocalStorage.Serialization;
 
 [MessagePackObject]
 public record DtoSharedFile(

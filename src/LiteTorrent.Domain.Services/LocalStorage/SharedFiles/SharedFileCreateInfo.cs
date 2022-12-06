@@ -4,7 +4,7 @@ namespace LiteTorrent.Domain.Services.LocalStorage.SharedFiles;
 
 public record SharedFileCreateInfo(
     IReadOnlyList<DnsEndPoint> Trackers,
-    string RelativePath, 
+    string RelativePath,
     ulong SizeInBytes, 
     uint ShardMaxSizeInBytes
 );

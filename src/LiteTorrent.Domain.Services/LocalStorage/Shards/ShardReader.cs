@@ -1,5 +1,5 @@
-﻿using LiteTorrent.Domain.Services.LocalStorage.Common;
-using LiteTorrent.Infra;
+﻿using LiteTorrent.Core;
+using LiteTorrent.Domain.Services.LocalStorage.Common;
 
 namespace LiteTorrent.Domain.Services.LocalStorage.Shards;
 

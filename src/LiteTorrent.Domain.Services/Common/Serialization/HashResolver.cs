@@ -1,7 +1,7 @@
 ﻿using MessagePack;
 using MessagePack.Formatters;
 
-namespace LiteTorrent.Domain.Services.Serialization;
+namespace LiteTorrent.Domain.Services.Common.Serialization;
 
 public class HashResolver : IFormatterResolver
 {

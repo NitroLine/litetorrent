@@ -55,7 +55,7 @@ public class CreateSharedFileCommandHandler
         await MessagePackSerializer.SerializeAsync(
             outputFile, 
             torrentFile,
-            SerializerHelper.SerializerOptions,
+            SerializerHelper.DefaultOptions,
             cancellationToken);
 
         return torrentFile;

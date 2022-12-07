@@ -17,4 +17,12 @@ public static class ErrorRegistry
                              $"for file {sharedFile.RelativePath}");
         }
     }
+
+    public static class Peer
+    {
+        public static Error ConnectionIsClosed()
+        {
+            return new Error("Connection is closed");
+        }
+    }
 }

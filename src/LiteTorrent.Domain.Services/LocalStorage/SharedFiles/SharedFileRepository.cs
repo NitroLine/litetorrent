@@ -28,7 +28,7 @@ public class SharedFileRepository
         SharedFileCreateInfo sharedFileInfo, 
         CancellationToken cancellationToken)
     {
-        var rawFilePath = Path.Join(configuration.SharedFileDirectoryPath, sharedFileInfo.RelativePath);
+        var rawFilePath = Path.Join(configuration.ShardDirectoryPath, sharedFileInfo.RelativePath);
         await using var dataStream = new FileStream(rawFilePath, FileMode.Open, FileAccess.Read);
         
         var shardHashes = await LocalStorageHelper

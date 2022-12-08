@@ -17,7 +17,7 @@ public record CreateSharedFileCommand(
 );
 
 public class CreateSharedFileCommandHandler
-    : IAsyncRequestHandler<CreateSharedFileCommand, Result<DtoSharedFile>>
+    : IAsyncRequestHandler<CreateSharedFileCommand, Result<DtoUserSharedFile>>
 {
     private readonly SharedFileRepository sharedFileRepository;
 
@@ -26,7 +26,7 @@ public class CreateSharedFileCommandHandler
         this.sharedFileRepository = sharedFileRepository;
     }
     
-    public async ValueTask<Result<DtoSharedFile>> InvokeAsync(
+    public async ValueTask<Result<DtoUserSharedFile>> InvokeAsync(
         CreateSharedFileCommand request, 
         CancellationToken cancellationToken)
     {
@@ -40,7 +40,7 @@ public class CreateSharedFileCommandHandler
         if (createResult.TryGetError(out var hash, out var error))
             return error;
 
-        var torrentFile = new DtoSharedFile(
+        var torrentFile = new DtoUserSharedFile(
             hash,
             request.Trackers, 
             request.RelativePath,

@@ -1,3 +1,5 @@
-﻿namespace LiteTorrent.Domain.Services.ShardExchange.Messages;
+﻿using System.Collections;
 
-public record ConnectionContext(Hash FileHash);
+namespace LiteTorrent.Domain.Services.ShardExchange.Messages;
+
+public record ConnectionContext(SharedFile SharedFile, BitArray OtherBitfield);

@@ -26,7 +26,7 @@ public class AddSharedFileCommandHandler
     {
         await using var torrentFile = new FileStream(request.AbsoluteFilePath, FileMode.Open, FileAccess.Read);
                     
-        var dto = MessagePackSerializer.Deserialize<DtoSharedFile>(
+        var dto = MessagePackSerializer.Deserialize<DtoUserSharedFile>(
             torrentFile, SerializerHelper.DefaultOptions,
             cancellationToken);
         

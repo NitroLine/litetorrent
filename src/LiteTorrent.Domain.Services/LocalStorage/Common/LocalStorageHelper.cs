@@ -18,18 +18,53 @@ public static class LocalStorageHelper
 
     private static readonly FileStreamOptions DefaultFileStreamOptionsToWrite = new()
     {
-        Access = FileAccess.Write,
-        Share = FileShare.Read
+        Mode = FileMode.Open,
+        Access = FileAccess.Write, 
+        Share = FileShare.None
     };
 
     public static FileStream GetFileStreamToWrite(string path)
     {
-        return new FileStream(path, DefaultFileStreamOptionsToWrite);
+        for (var i = 0; i < 5; i++)
+        {
+            try
+            {
+                var fileInfo = new FileInfo(path);
+                if (!fileInfo.Exists)
+                    File.Create(path);
+
+                return new FileStream(path, DefaultFileStreamOptionsToWrite);
+            }
+            catch (IOException e)
+            {
+                if (i == 4)
+                    throw;
+            }
+        }
+
+        throw new Exception();
     }
 
     public static FileStream GetFileStreamToRead(string path)
     {
-        return new FileStream(path, DefaultFileStreamOptionsToRead);
+        for (var i = 0; i < 5; i++)
+        {
+            try
+            {
+                var fileInfo = new FileInfo(path);
+                if (!fileInfo.Exists)
+                    File.Create(path);
+
+                return new FileStream(path, DefaultFileStreamOptionsToRead);
+            }
+            catch (IOException e)
+            {
+                if (i == 4)
+                    throw;
+            }
+        }
+
+        throw new Exception();
     }
 
     public static string GetFilePath(string baseDir, Hash hash)

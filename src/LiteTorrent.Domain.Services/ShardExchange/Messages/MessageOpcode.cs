@@ -4,5 +4,7 @@ public enum MessageOpcode
 {
     HandshakeInit,
     HandshakeAck,
-    Bitfield
+    Bitfield,
+    ShardRequest,
+    ShardResponse
 }

@@ -4,7 +4,8 @@ public class HandlerResolver
 {
     private static readonly HashSet<(Type, Type)> HandlerTypeByMessageType = new()
     {
-        (typeof(ShardRequestMessage), typeof(ShardRequestMessageHandler))
+        (typeof(ShardRequestMessage), typeof(ShardRequestMessageHandler)),
+        (typeof(ShardResponseMessage), typeof(ShardResponseMessage))
     };
 
     private static Dictionary<Type, IMessageHandler>? handlerByMessageType;
@@ -25,6 +26,7 @@ public class HandlerResolver
     }
 
 #pragma warning disable CA1822
+    // ReSharper disable once MemberCanBeMadeStatic.Global
     public IMessageHandler Resolve(object payload)
 #pragma warning restore CA1822
     {

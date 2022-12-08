@@ -1,7 +1,9 @@
-﻿using LiteTorrent.Domain.Services.Common;
+﻿using LiteTorrent.Domain.Services.Common.Serialization;
 using LiteTorrent.Domain.Services.LocalStorage.HashTrees;
 using LiteTorrent.Domain.Services.LocalStorage.Shards;
 using LiteTorrent.Domain.Services.LocalStorage.SharedFiles;
+using LiteTorrent.Domain.Services.ShardExchange;
+using LiteTorrent.Domain.Services.ShardExchange.Transport;
 using MessagePipe;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -27,21 +29,32 @@ public static class EntryPoint
             .AddJsonFile("appsettings.json")
             .Build();
 
-        var localStorageConfiguration = new ConfigurationParser(commonConfig).GetLocalStorageConfiguration();
+        var configParser = new ConfigurationParser(commonConfig);
+        var localStorageConfiguration = configParser.GetLocalStorageConfiguration();
+        var transportConfiguration = configParser.GetTransportConfiguration();
+        var downloadingConfiguration = configParser.GetDownloadingConfiguration();
 
         var host = Host
             .CreateDefaultBuilder()
             .ConfigureServices(services =>
             {
-                services.AddMessagePipe();
+                services
+                    .AddMessagePipe();
                 
                 services
                     .AddSingleton(localStorageConfiguration)
+                    .AddSingleton(transportConfiguration)
+                    .AddSingleton(downloadingConfiguration)
                     .AddSingleton<SharedFileRepository>()
                     .AddSingleton<ShardRepository>()
-                    .AddSingleton<HashTreeRepository>();
+                    .AddSingleton<HashTreeRepository>()
+                    .AddSingleton<TorrentEndpoint>()
+                    .AddSingleton<TorrentConnector>()
+                    .AddSingleton<ShardExchanger>()
+                    .AddLogging();
                     
-                services.AddHostedService<CliService>();
+                services
+                    .AddHostedService<CliService>();
             })
             .Build();
 

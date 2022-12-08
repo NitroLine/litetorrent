@@ -25,11 +25,11 @@ public class HashTreeRepository
     {
         await using var file = GetFileStream(merkelTree.RootHash);
         
-        var (trees, rootTree, rootHash) = merkelTree.GetInnerData();
+        var (trees, rootTree, rootHash, pieces) = merkelTree.GetInnerData();
 
         await MessagePackSerializer.SerializeAsync(
             file,
-            new DtoHashTree(trees, rootTree, rootHash),
+            new DtoHashTree(trees, rootTree, rootHash, pieces),
             Options);
 
         return Result.Ok;
@@ -42,7 +42,7 @@ public class HashTreeRepository
 
         var dto = await MessagePackSerializer.DeserializeAsync<DtoHashTree>(file, Options);
 
-        return new MerkelTree(dto.Trees, dto.RootTree, dto.RootHash);
+        return new MerkelTree(dto.Trees, dto.RootTree, dto.RootHash, dto.Pieces);
     }
 
     private FileStream GetFileStream(Hash rootHash)

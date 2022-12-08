@@ -4,12 +4,15 @@ namespace LiteTorrent.Domain;
 
 public readonly struct Hash
 {
-    private readonly byte[] sha256Data;
+    private static readonly byte[] EmptyData = new byte[32]; 
+    private readonly byte[] sha256Data = EmptyData;
 
     private Hash(byte[] sha256Data)
     {
         this.sha256Data = sha256Data;
     }
+
+    public bool IsEmpty => sha256Data == EmptyData;
 
     public ReadOnlyMemory<byte> Data => sha256Data;
     

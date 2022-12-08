@@ -8,7 +8,11 @@ public static class MessageSerializer
 {
     private static readonly Dictionary<MessageOpcode, Type> TypeByOpcode = new()
     {
-        { MessageOpcode.HandshakeInit, typeof(HandshakeInitMessage) }
+        { MessageOpcode.HandshakeInit, typeof(HandshakeInitMessage) },
+        { MessageOpcode.HandshakeAck, typeof(HandshakeAckMessage) },
+        { MessageOpcode.Bitfield, typeof(BitfieldMessage) },
+        { MessageOpcode.ShardRequest, typeof(ShardRequestMessage) },
+        { MessageOpcode.ShardResponse, typeof(ShardResponseMessage) }
     };
     
     private static readonly Dictionary<Type, MessageOpcode> OpcodeByType = new();

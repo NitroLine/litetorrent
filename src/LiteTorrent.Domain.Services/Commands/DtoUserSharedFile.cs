@@ -4,7 +4,7 @@ using MessagePack;
 namespace LiteTorrent.Domain.Services.Commands;
 
 [MessagePackObject]
-public record DtoSharedFile(
+public record DtoUserSharedFile(
     [property: Key("Hash")] Hash Hash,
     [property: Key("Trackers")] IReadOnlyList<DnsEndPoint> Trackers,
     [property: Key("RelativePath")] string RelativePath, 

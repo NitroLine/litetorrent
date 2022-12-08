@@ -11,15 +11,16 @@ public class Peer
 {
     private readonly string id;
     private readonly WebSocket webSocket;
-    private readonly ConnectionContext context;
     private readonly byte[] buffer = new byte[40960];
 
     public Peer(string id, WebSocket webSocket, ConnectionContext context)
     {
         this.id = id;
         this.webSocket = webSocket;
-        this.context = context;
+        Context = context;
     }
+    
+    public ConnectionContext Context { get; }
 
     public Task Send(object message, CancellationToken cancellationToken)
     {

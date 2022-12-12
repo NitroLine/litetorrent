@@ -12,13 +12,13 @@ public class SharedFile
         IReadOnlyList<DnsEndPoint> trackers, 
         string relativePath, 
         ulong sizeInBytes,
-        uint shardMaxSizeInBytes)
+        uint pieceMaxSizeInBytes)
     {
         HashTree = hashTree;
         Trackers = trackers;
         RelativePath = relativePath;
         SizeInBytes = sizeInBytes;
-        ShardMaxSizeInBytes = shardMaxSizeInBytes;
+        PieceMaxSizeInBytes = pieceMaxSizeInBytes;
     }
     
     public MerkleTree HashTree { get; }
@@ -26,6 +26,6 @@ public class SharedFile
     public IReadOnlyList<DnsEndPoint> Trackers { get; }
     public string RelativePath { get; }
     public ulong SizeInBytes { get; }
-    public uint ShardMaxSizeInBytes { get; }
-    public ulong ShardCount => SizeInBytes / ShardMaxSizeInBytes;
+    public uint PieceMaxSizeInBytes { get; }
+    public ulong ShardCount => SizeInBytes / PieceMaxSizeInBytes;
 }

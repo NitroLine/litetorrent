@@ -1,31 +1,32 @@
 ﻿using LiteTorrent.Domain.Services.LocalStorage.HashTrees;
-using LiteTorrent.Domain.Services.LocalStorage.Shards;
+using LiteTorrent.Domain.Services.LocalStorage.Pieces;
+using LiteTorrent.Domain.Services.ShardExchange.Messages;
 using MessagePack;
 
-namespace LiteTorrent.Domain.Services.ShardExchange.Messages;
+namespace LiteTorrent.Domain.Services.PieceExchange.Messages;
 
 [MessagePackObject]
-public record ShardRequestMessage(
+public record PieceRequestMessage(
     [property: Key(0)] ulong Index
 );
 
-public class ShardRequestMessageHandler : MessageHandler<ShardRequestMessage>
+public class PieceRequestMessageHandler : MessageHandler<PieceRequestMessage>
 {
-    private readonly ShardRepository shardRepository;
+    private readonly PieceRepository pieceRepository;
     private readonly HashTreeRepository hashTreeRepository;
 
-    public ShardRequestMessageHandler(ShardRepository shardRepository, HashTreeRepository hashTreeRepository)
+    public PieceRequestMessageHandler(PieceRepository pieceRepository, HashTreeRepository hashTreeRepository)
     {
-        this.shardRepository = shardRepository;
+        this.pieceRepository = pieceRepository;
         this.hashTreeRepository = hashTreeRepository;
     }
     
     public override async Task<HandleResult> Handle(
         ConnectionContext context, 
-        ShardRequestMessage message,
+        PieceRequestMessage message,
         CancellationToken cancellationToken)
     {
-        var reader = await shardRepository.CreateReader(context.SharedFile.Hash, cancellationToken);
+        var reader = await pieceRepository.CreateReader(context.SharedFile.Hash, cancellationToken);
         var readResult = await reader.Read(message.Index, cancellationToken);
         if (readResult.TryGetError(out var shard, out var error))
             throw new InvalidOperationException(error.Message);
@@ -33,6 +34,6 @@ public class ShardRequestMessageHandler : MessageHandler<ShardRequestMessage>
         var confirmationPath = context.SharedFile.HashTree.GetPath((int)message.Index).ToArray();
 
         // TODO: reduce data copying
-        return new HandleResult(true, new ShardResponseMessage(shard.Index, shard.Data.ToArray(), confirmationPath));
+        return new HandleResult(true, new PieceResponseMessage(shard.Index, shard.Data.ToArray(), confirmationPath));
     }
 }

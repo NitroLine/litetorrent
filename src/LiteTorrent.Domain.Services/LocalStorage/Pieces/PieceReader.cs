@@ -1,14 +1,14 @@
 ﻿using LiteTorrent.Core;
 using LiteTorrent.Domain.Services.LocalStorage.Common;
 
-namespace LiteTorrent.Domain.Services.LocalStorage.Shards;
+namespace LiteTorrent.Domain.Services.LocalStorage.Pieces;
 
-public class ShardReader
+public class PieceReader
 {
     private readonly SharedFile sharedFile;
     private readonly string basePath;
 
-    public ShardReader(SharedFile sharedFile, string basePath)
+    public PieceReader(SharedFile sharedFile, string basePath)
     {
         var path = Path.Join(basePath, sharedFile.RelativePath);
         if (!File.Exists(path))
@@ -19,7 +19,7 @@ public class ShardReader
     }
 
     // ReSharper disable once ParameterTypeCanBeEnumerable.Global
-    public async Task<Result<Shard>> Read(
+    public async Task<Result<Piece>> Read(
         ulong index, 
         CancellationToken cancellationToken)
     {
@@ -32,12 +32,12 @@ public class ShardReader
         return shard;
     }
 
-    private async Task<Result<Shard>> ReadFromStream(
+    private async Task<Result<Piece>> ReadFromStream(
         Stream stream,
         ulong index,
         CancellationToken cancellationToken)
     {
-        var buffer = ShardHelper.CreateShardBuffer(sharedFile, index);
+        var buffer = PieceHelper.CreateShardBuffer(sharedFile, index);
         stream.Seek((long)sharedFile.GetShardOffsetByIndex(index), SeekOrigin.Begin);
         var count = await stream.ReadAsync(buffer, cancellationToken);
         if (count != buffer.Length)
@@ -46,6 +46,6 @@ public class ShardReader
                 $"Shard size is incorrect. Expected: '{buffer.Length}'. Was: '{count}'");
         }
 
-        return new Shard(index, buffer);
+        return new Piece(index, buffer);
     }
 }

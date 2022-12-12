@@ -1,8 +1,9 @@
 ﻿using LiteTorrent.Domain.Services.Common.Serialization;
+using LiteTorrent.Domain.Services.PieceExchange.Messages;
 using LiteTorrent.Domain.Services.ShardExchange.Messages;
 using MessagePack;
 
-namespace LiteTorrent.Domain.Services.ShardExchange.Serialization;
+namespace LiteTorrent.Domain.Services.PieceExchange.Serialization;
 
 public static class MessageSerializer
 {
@@ -11,8 +12,8 @@ public static class MessageSerializer
         { MessageOpcode.HandshakeInit, typeof(HandshakeInitMessage) },
         { MessageOpcode.HandshakeAck, typeof(HandshakeAckMessage) },
         { MessageOpcode.Bitfield, typeof(BitfieldMessage) },
-        { MessageOpcode.ShardRequest, typeof(ShardRequestMessage) },
-        { MessageOpcode.ShardResponse, typeof(ShardResponseMessage) }
+        { MessageOpcode.PieceRequest, typeof(PieceRequestMessage) },
+        { MessageOpcode.PieceResponse, typeof(PieceResponseMessage) }
     };
     
     private static readonly Dictionary<Type, MessageOpcode> OpcodeByType = new();

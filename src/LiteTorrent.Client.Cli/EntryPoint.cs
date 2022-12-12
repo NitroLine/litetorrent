@@ -1,8 +1,8 @@
 ﻿using LiteTorrent.Domain.Services.Common.Serialization;
 using LiteTorrent.Domain.Services.LocalStorage.HashTrees;
-using LiteTorrent.Domain.Services.LocalStorage.Shards;
+using LiteTorrent.Domain.Services.LocalStorage.Pieces;
 using LiteTorrent.Domain.Services.LocalStorage.SharedFiles;
-using LiteTorrent.Domain.Services.ShardExchange;
+using LiteTorrent.Domain.Services.PieceExchange;
 using LiteTorrent.Domain.Services.ShardExchange.Transport;
 using MessagePipe;
 using Microsoft.Extensions.Configuration;
@@ -46,7 +46,7 @@ public static class EntryPoint
                     .AddSingleton(transportConfiguration)
                     .AddSingleton(downloadingConfiguration)
                     .AddSingleton<SharedFileRepository>()
-                    .AddSingleton<ShardRepository>()
+                    .AddSingleton<PieceRepository>()
                     .AddSingleton<HashTreeRepository>()
                     .AddSingleton<TorrentEndpoint>()
                     .AddSingleton<TorrentConnector>()

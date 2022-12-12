@@ -1,8 +1,8 @@
 ﻿using System.Net;
 using System.Net.Sockets;
 using System.Net.WebSockets;
-using LiteTorrent.Domain.Services.ShardExchange.Messages;
-using LiteTorrent.Domain.Services.ShardExchange.Serialization;
+using LiteTorrent.Domain.Services.PieceExchange.Messages;
+using LiteTorrent.Domain.Services.PieceExchange.Serialization;
 
 namespace LiteTorrent.Domain.Services.ShardExchange.Transport;
 

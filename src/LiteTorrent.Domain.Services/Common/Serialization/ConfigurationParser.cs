@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using LiteTorrent.Core;
 using LiteTorrent.Domain.Services.LocalStorage.Configuration;
-using LiteTorrent.Domain.Services.ShardExchange;
+using LiteTorrent.Domain.Services.PieceExchange;
 using Microsoft.Extensions.Configuration;
 
 namespace LiteTorrent.Domain.Services.Common.Serialization;

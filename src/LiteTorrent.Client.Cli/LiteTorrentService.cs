@@ -1,4 +1,4 @@
-﻿using LiteTorrent.Domain.Services.ShardExchange;
+﻿using LiteTorrent.Domain.Services.PieceExchange;
 using Microsoft.Extensions.Hosting;
 
 namespace LiteTorrent.Client.Cli;

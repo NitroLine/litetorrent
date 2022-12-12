@@ -4,12 +4,12 @@ using LiteTorrent.Domain.Services.LocalStorage.Common;
 
 namespace LiteTorrent.Domain.Services.LocalStorage.Shards;
 
-public class ShardWriter
+public class PieceWriter
 {
     private readonly SharedFile sharedFile;
     private readonly string basePath;
 
-    public ShardWriter(
+    public PieceWriter(
         SharedFile sharedFile,
         string basePath)
     {
@@ -23,27 +23,27 @@ public class ShardWriter
 
     public async Task<Result<Unit>> Write(
         // ReSharper disable once ParameterTypeCanBeEnumerable.Global
-        Shard shard,
+        Piece piece,
         CancellationToken cancellationToken)
     {
         await using var fileStream = LocalStorageHelper.GetFileStreamToWrite(basePath);
         
-        var result = await WriteInStream(fileStream, shard, cancellationToken);
+        var result = await WriteInStream(fileStream, piece, cancellationToken);
         
         return result.TryGetError(out _, out var error) ? error : Result.Ok;
     }
 
     private async Task<Result<Unit>> WriteInStream(
         Stream stream, 
-        Shard shard, 
+        Piece piece, 
         CancellationToken cancellationToken)
     {
-        var (index, data) = shard;
+        var (index, data) = piece;
         
         if (index >= sharedFile.ShardCount)
             return ErrorRegistry.Shard.IndexOutOfRange(sharedFile, index);
 
-        if (data.Length > sharedFile.ShardMaxSizeInBytes)
+        if (data.Length > sharedFile.PieceMaxSizeInBytes)
             return ErrorRegistry.Shard.ShardIsTooLong(sharedFile, data);
 
         stream.Seek((long)sharedFile.GetShardOffsetByIndex(index), SeekOrigin.Begin);

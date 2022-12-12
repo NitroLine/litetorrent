@@ -1,11 +1,13 @@
-﻿namespace LiteTorrent.Domain.Services.ShardExchange.Messages;
+﻿using LiteTorrent.Domain.Services.ShardExchange.Messages;
+
+namespace LiteTorrent.Domain.Services.PieceExchange.Messages;
 
 public class HandlerResolver
 {
     private static readonly HashSet<(Type, Type)> HandlerTypeByMessageType = new()
     {
-        (typeof(ShardRequestMessage), typeof(ShardRequestMessageHandler)),
-        (typeof(ShardResponseMessage), typeof(ShardResponseMessage))
+        (typeof(PieceRequestMessage), typeof(PieceRequestMessageHandler)),
+        (typeof(PieceResponseMessage), typeof(PieceResponseMessage))
     };
 
     private static Dictionary<Type, IMessageHandler>? handlerByMessageType;

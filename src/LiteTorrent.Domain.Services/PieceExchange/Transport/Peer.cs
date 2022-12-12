@@ -2,8 +2,8 @@
 using System.Runtime.CompilerServices;
 using LiteTorrent.Core;
 using LiteTorrent.Domain.Services.Common;
-using LiteTorrent.Domain.Services.ShardExchange.Messages;
-using LiteTorrent.Domain.Services.ShardExchange.Serialization;
+using LiteTorrent.Domain.Services.PieceExchange.Messages;
+using LiteTorrent.Domain.Services.PieceExchange.Serialization;
 
 namespace LiteTorrent.Domain.Services.ShardExchange.Transport;
 

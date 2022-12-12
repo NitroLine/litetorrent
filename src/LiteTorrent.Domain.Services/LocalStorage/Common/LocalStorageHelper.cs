@@ -72,7 +72,7 @@ public static class LocalStorageHelper
         return Path.Join(baseDir, Base32.Rfc4648.Encode(hash.Data.Span));
     }
 
-    public static async IAsyncEnumerable<Shard> SplitData(
+    public static async IAsyncEnumerable<Piece> SplitData(
         Stream dataStream, 
         uint maxShardSizeInBytes, 
         [EnumeratorCancellation] CancellationToken cancellationToken)
@@ -82,7 +82,7 @@ public static class LocalStorageHelper
         var index = 0ul;
         while (count != 0)
         {
-            yield return new Shard(index, new ReadOnlyMemory<byte>(buffer, 0, count));
+            yield return new Piece(index, new ReadOnlyMemory<byte>(buffer, 0, count));
             
             count = await dataStream.ReadAsync(buffer, cancellationToken);
             index++;

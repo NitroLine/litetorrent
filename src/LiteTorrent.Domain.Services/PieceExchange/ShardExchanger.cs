@@ -2,11 +2,11 @@
 using LiteTorrent.Domain.Services.Common;
 using LiteTorrent.Domain.Services.LocalStorage.HashTrees;
 using LiteTorrent.Domain.Services.LocalStorage.SharedFiles;
-using LiteTorrent.Domain.Services.ShardExchange.Messages;
+using LiteTorrent.Domain.Services.PieceExchange.Messages;
 using LiteTorrent.Domain.Services.ShardExchange.Transport;
 using Microsoft.Extensions.Logging;
 
-namespace LiteTorrent.Domain.Services.ShardExchange;
+namespace LiteTorrent.Domain.Services.PieceExchange;
 
 public class ShardExchanger
 {
@@ -92,7 +92,7 @@ public class ShardExchanger
             if (!requiredShards.Get(i))
                 continue;
 
-            await peer.Send(new ShardRequestMessage((ulong)i), cancellationToken);
+            await peer.Send(new PieceRequestMessage((ulong)i), cancellationToken);
         }
     }
 

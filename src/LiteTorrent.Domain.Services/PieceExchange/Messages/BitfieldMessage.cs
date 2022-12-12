@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using MessagePack;
 
-namespace LiteTorrent.Domain.Services.ShardExchange.Messages;
+namespace LiteTorrent.Domain.Services.PieceExchange.Messages;
 
 [MessagePackObject]
 public record BitfieldMessage (

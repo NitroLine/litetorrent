@@ -1,4 +1,4 @@
-﻿namespace LiteTorrent.Domain.Services.ShardExchange.Messages;
+﻿namespace LiteTorrent.Domain.Services.PieceExchange.Messages;
 
 public interface IMessageHandler<in TMessage> : IMessageHandler
 {

@@ -1,4 +1,6 @@
-﻿namespace LiteTorrent.Domain;
+﻿using System.Collections;
+
+namespace LiteTorrent.Domain;
 
 public record Action
 (
@@ -12,6 +14,8 @@ public class MerkelTree
     private readonly List<Hash[]> trees = new();
     private readonly Hash[] rootTree;
     private readonly List<int> leafCounts = new();
+    private readonly Hash[] pieces;
+    
     public Hash RootHash { get; private set; }
 
     private readonly Queue<Action> addQueue = new();
@@ -27,6 +31,7 @@ public class MerkelTree
         }
 
         rootTree = new Hash[trees.Count * 2 - 1];
+        pieces = new Hash[count];
     }
 
     public MerkelTree(int count, Hash rootHash) : this(count)
@@ -34,18 +39,32 @@ public class MerkelTree
         RootHash = rootHash;
     }
 
-    public MerkelTree(List<Hash[]> trees, Hash[] rootTree, Hash rootHash)
+    public MerkelTree(List<Hash[]> trees, Hash[] rootTree, Hash rootHash, Hash[] pieces)
     {
         RootHash = rootHash;
         this.trees = trees;
         this.rootTree = rootTree;
+        this.pieces = pieces;
     }
 
     public MerkelTree(Hash[] pieces) : this(pieces.Length)
     {
         BuildAllTree(pieces);
     }
-    
+
+    public (List<Hash[]> Trees, Hash[] RootTree, Hash RootHash, Hash[] Pieces) GetInnerData()
+    {
+        return (trees, rootTree, RootHash, pieces);
+    }
+
+    public BitArray GetLeafStates()
+    {
+        var bitArray = new BitArray(pieces.Length);
+        for (var i = 0; i < pieces.Length; i++)
+            bitArray.Set(i, !pieces[i].IsEmpty);
+
+        return bitArray;
+    }
 
     public bool TryAdd(int index, Hash itemHash, Hash[] path)
     {
@@ -56,6 +75,7 @@ public class MerkelTree
 
         if (rootHash != RootHash)
             return false;
+        
         while (addQueue.Count != 0)
         {
             var act = addQueue.Dequeue();
@@ -63,6 +83,8 @@ public class MerkelTree
                 rootTree[act.IndexInTree] = act.Hash;
             else trees[act.TreeIndex][act.IndexInTree] = act.Hash;
         }
+
+        pieces[index] = itemHash;
 
         return true;
     }
@@ -140,7 +162,7 @@ public class MerkelTree
         {
             var left = trees[arrayIndex][index - 1];
             yield return left;
-            foreach (var hash in  GetTreePath(left.Concat(lastHash), arrayIndex,(index - 1) / 2))
+            foreach (var hash in GetTreePath(left.Concat(lastHash), arrayIndex,(index - 1) / 2))
             {
                 yield return hash;
             }
@@ -148,7 +170,7 @@ public class MerkelTree
         }
         var right = trees[arrayIndex][index + 1];
         yield return right;
-        foreach (var hash in  GetTreePath(lastHash.Concat(right), arrayIndex,(index - 1) / 2))
+        foreach (var hash in GetTreePath(lastHash.Concat(right), arrayIndex,(index - 1) / 2))
         {
             yield return hash;
         }

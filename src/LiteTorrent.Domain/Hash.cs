@@ -4,20 +4,30 @@ namespace LiteTorrent.Domain;
 
 public readonly struct Hash
 {
-    private readonly byte[] sha256Data;
+    private static readonly byte[] EmptyData = new byte[32]; 
+    private readonly byte[] sha256Data = EmptyData;
 
     private Hash(byte[] sha256Data)
     {
         this.sha256Data = sha256Data;
     }
 
-    public ReadOnlyMemory<byte> Data => sha256Data;
+    public bool IsEmpty => sha256Data == EmptyData;
 
-    // TODO: Result<Hash>
+    public ReadOnlyMemory<byte> Data => sha256Data;
+    
     public static Hash CreateFromRaw(ReadOnlyMemory<byte> rawData)
     {
         using var algorithm = SHA256.Create();
         return new Hash(algorithm.ComputeHash(rawData.ToArray()));
+    }
+    
+    public static Hash CreateFromSha256(byte[] sha256Data)
+    {
+        if (sha256Data.Length != 32)
+            throw new ArgumentException($"Sha256 has 32 bytes, but was {sha256Data.Length}");
+            
+        return new Hash(sha256Data.ToArray());
     }
     
     public static bool operator ==(Hash hash1, Hash hash2)

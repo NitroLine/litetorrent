@@ -36,7 +36,7 @@ public class SharedFileRepository
             .Select(shard => Hash.CreateFromRaw(shard.Data))
             .ToArrayAsync(cancellationToken);
 
-        var hashTree = new MerkelTree(shardHashes);
+        var hashTree = new MerkleTree(shardHashes);
         var createResult = await hashTreeRepository.CreateOrReplace(hashTree);
         if (createResult.TryGetError(out _, out var error))
             return error;
@@ -60,7 +60,7 @@ public class SharedFileRepository
 
         var dto = await SaveSharedFileInfo(file, createInfo, cancellationToken);
 
-        var hashTree = new MerkelTree((int)(dto.SizeInBytes / dto.ShardMaxSizeInBytes), hash);
+        var hashTree = new MerkleTree((int)(dto.SizeInBytes / dto.ShardMaxSizeInBytes), hash);
         var saveResult = await hashTreeRepository.CreateOrReplace(hashTree);
         
         return saveResult.TryGetError(out _, out var error) ? error : Result.Ok;

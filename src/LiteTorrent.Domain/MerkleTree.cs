@@ -9,7 +9,7 @@ public record Action
     Hash Hash
 );
 
-public class MerkelTree
+public class MerkleTree
 {
     private readonly List<Hash[]> trees = new();
     private readonly Hash[] rootTree;
@@ -20,7 +20,7 @@ public class MerkelTree
 
     private readonly Queue<Action> addQueue = new();
 
-    public MerkelTree(int count)
+    public MerkleTree(int count)
     {
         while (count != 0)
         {
@@ -34,12 +34,12 @@ public class MerkelTree
         pieces = new Hash[count];
     }
 
-    public MerkelTree(int count, Hash rootHash) : this(count)
+    public MerkleTree(int count, Hash rootHash) : this(count)
     {
         RootHash = rootHash;
     }
 
-    public MerkelTree(List<Hash[]> trees, Hash[] rootTree, Hash rootHash, Hash[] pieces)
+    public MerkleTree(List<Hash[]> trees, Hash[] rootTree, Hash rootHash, Hash[] pieces)
     {
         RootHash = rootHash;
         this.trees = trees;
@@ -47,7 +47,7 @@ public class MerkelTree
         this.pieces = pieces;
     }
 
-    public MerkelTree(Hash[] pieces) : this(pieces.Length)
+    public MerkleTree(Hash[] pieces) : this(pieces.Length)
     {
         BuildAllTree(pieces);
     }

@@ -21,11 +21,11 @@ public class HashTreeRepository
     /// <summary>
     /// Saving in file which name is correlated shared file hash in base32
     /// </summary>
-    public async Task<Result<Unit>> CreateOrReplace(MerkelTree merkelTree)
+    public async Task<Result<Unit>> CreateOrReplace(MerkleTree merkleTree)
     {
-        await using var file = GetFileStream(merkelTree.RootHash);
+        await using var file = GetFileStream(merkleTree.RootHash);
         
-        var (trees, rootTree, rootHash, pieces) = merkelTree.GetInnerData();
+        var (trees, rootTree, rootHash, pieces) = merkleTree.GetInnerData();
 
         await MessagePackSerializer.SerializeAsync(
             file,
@@ -36,13 +36,13 @@ public class HashTreeRepository
     }
     
     /// <param name="hash">Correlated shared file hash</param>
-    public async Task<Result<MerkelTree>> Get(Hash hash)
+    public async Task<Result<MerkleTree>> Get(Hash hash)
     {
         await using var file = GetFileStream(hash);
 
         var dto = await MessagePackSerializer.DeserializeAsync<DtoHashTree>(file, Options);
 
-        return new MerkelTree(dto.Trees, dto.RootTree, dto.RootHash, dto.Pieces);
+        return new MerkleTree(dto.Trees, dto.RootTree, dto.RootHash, dto.Pieces);
     }
 
     private FileStream GetFileStream(Hash rootHash)

@@ -8,7 +8,7 @@ namespace LiteTorrent.Domain;
 public class SharedFile
 {
     public SharedFile(
-        MerkelTree hashTree,
+        MerkleTree hashTree,
         IReadOnlyList<DnsEndPoint> trackers, 
         string relativePath, 
         ulong sizeInBytes,
@@ -21,7 +21,7 @@ public class SharedFile
         ShardMaxSizeInBytes = shardMaxSizeInBytes;
     }
     
-    public MerkelTree HashTree { get; }
+    public MerkleTree HashTree { get; }
     public Hash Hash => HashTree.RootHash;
     public IReadOnlyList<DnsEndPoint> Trackers { get; }
     public string RelativePath { get; }

@@ -1,4 +1,5 @@
-﻿using System.Net.Sockets;
+﻿using System.Net;
+using System.Net.Sockets;
 using System.Net.WebSockets;
 using LiteTorrent.Domain.Services.LocalStorage.SharedFiles;
 using LiteTorrent.Domain.Services.PieceExchange.Messages;

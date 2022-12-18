@@ -20,11 +20,13 @@ public static class LocalStorageHelper
     {
         Mode = FileMode.Open,
         Access = FileAccess.Write, 
-        Share = FileShare.None
+        Share = FileShare.Write
     };
 
     public static FileStream GetFileStreamToWrite(string path)
     {
+        Console.WriteLine(Thread.CurrentThread.ManagedThreadId);
+        Console.WriteLine(path);
         for (var i = 0; i < 5; i++)
         {
             try

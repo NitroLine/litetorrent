@@ -42,6 +42,7 @@ public class CliService : BackgroundService
             {
                 case "add":
                 {
+                    Console.WriteLine(input[1]);
                     var addResult = await addSharedFileCommandHandler.InvokeAsync(
                         new AddSharedFileCommand(input[1]),
                         cancellationToken);
@@ -59,7 +60,7 @@ public class CliService : BackgroundService
                 {
                     var relativePath = input[1];
                     var fileInfo = new FileInfo(Path.Join(localStorageConfiguration.ShardDirectoryPath, relativePath));
-                    var output = input[2];
+                    var output = Path.Join(localStorageConfiguration.SharedFileDirectoryPath, input[2]);
                     var command = new CreateSharedFileCommand(
                         Array.Empty<DnsEndPoint>(),
                         relativePath,

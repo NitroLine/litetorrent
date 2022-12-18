@@ -2,6 +2,7 @@
 using LiteTorrent.Domain.Services.LocalStorage.Pieces;
 using LiteTorrent.Domain.Services.ShardExchange.Messages;
 using MessagePack;
+using Serilog;
 
 namespace LiteTorrent.Domain.Services.PieceExchange.Messages;
 
@@ -26,6 +27,7 @@ public class PieceRequestMessageHandler : MessageHandler<PieceRequestMessage>
         PieceRequestMessage message,
         CancellationToken cancellationToken)
     {
+        Log.Debug($"Request : {message.Index}");
         var reader = await pieceRepository.CreateReader(context.SharedFile.Hash, cancellationToken);
         var readResult = await reader.Read(message.Index, cancellationToken);
         if (readResult.TryGetError(out var shard, out var error))

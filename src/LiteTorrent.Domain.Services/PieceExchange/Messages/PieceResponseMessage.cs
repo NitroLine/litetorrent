@@ -1,6 +1,7 @@
 ﻿using LiteTorrent.Domain.Services.LocalStorage.Pieces;
 using LiteTorrent.Domain.Services.PieceExchange.Messages;
 using MessagePack;
+using Serilog;
 
 namespace LiteTorrent.Domain.Services.ShardExchange.Messages;
 
@@ -25,6 +26,7 @@ public class PieceResponseMessageHandler : MessageHandler<PieceResponseMessage>
         PieceResponseMessage message,
         CancellationToken cancellationToken)
     {
+        Log.Debug($"Response : {message.Index}");
         var writer = await pieceRepository.CreateWriter(context.SharedFile.Hash, cancellationToken);
         var writeResult = await writer.Write(new Piece(message.Index, message.Payload), cancellationToken);
         if (writeResult.TryGetError(out _, out var error))

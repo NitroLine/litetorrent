@@ -7,7 +7,7 @@ public class HandlerResolver
     private static readonly HashSet<(Type, Type)> HandlerTypeByMessageType = new()
     {
         (typeof(PieceRequestMessage), typeof(PieceRequestMessageHandler)),
-        (typeof(PieceResponseMessage), typeof(PieceResponseMessage))
+        (typeof(PieceResponseMessage), typeof(PieceResponseMessageHandler))
     };
 
     private static Dictionary<Type, IMessageHandler>? handlerByMessageType;

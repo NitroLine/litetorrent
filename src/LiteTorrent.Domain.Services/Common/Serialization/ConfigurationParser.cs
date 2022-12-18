@@ -18,7 +18,7 @@ public class ConfigurationParser
     public LocalStorageConfiguration GetLocalStorageConfiguration()
     {
         const string prefix = "LocalStorage";
-        
+
         var config = new LocalStorageConfiguration(
             configuration[$"{prefix}:ShardDirectoryPath"] ?? throw new ConfigurationParsingException(),
             configuration[$"{prefix}:HashTreeDirectoryPath"] ?? throw new ConfigurationParsingException(),
@@ -36,7 +36,7 @@ public class ConfigurationParser
         const string prefix = "Transport";
 
         var config = new TransportConfiguration(
-            ParseDnsEndPoint(configuration[$"{prefix}:TorrentEndpoint"] ?? throw new ConfigurationParsingException()), 
+            ParseIPEndPoint(configuration[$"{prefix}:TorrentEndpoint"] ?? throw new ConfigurationParsingException()),
             configuration[$"{prefix}:PeerId"] ?? throw new ConfigurationParsingException());
 
         return config;
@@ -47,7 +47,7 @@ public class ConfigurationParser
         const string prefix = "Downloading";
         var names = configuration.GetSection($"{prefix}:AllowedPeers").Get<string[]>()
                     ?? throw new ConfigurationParsingException();
-        
+
         if (names.Length < 1)
             throw new ConfigurationParsingException();
 
@@ -60,5 +60,10 @@ public class ConfigurationParser
     {
         var splitAddress = address.Split(':');
         return new DnsEndPoint(splitAddress[0], int.Parse(splitAddress[1]));
+    }
+
+    private static IPEndPoint ParseIPEndPoint(string address)
+    {
+        return IPEndPoint.Parse(address);
     }
 }

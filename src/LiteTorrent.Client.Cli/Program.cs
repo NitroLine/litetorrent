@@ -34,7 +34,7 @@ public static class Program
             {
                 break;
             }
-            case "pause":
+            case "stop":
             {
                 break;
             }

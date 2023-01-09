@@ -16,4 +16,10 @@
       <ProjectReference Include="..\LiteTorrent.Domain.Services\LiteTorrent.Domain.Services.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Update="help.txt">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
 </Project>

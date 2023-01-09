@@ -29,7 +29,7 @@
 //     
 //     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
 //     {
-//         // TODO: command: log
+//         
 //         
 //         while (!cancellationToken.IsCancellationRequested)
 //         {

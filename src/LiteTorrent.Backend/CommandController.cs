@@ -1,12 +1,13 @@
-﻿using LiteTorrent.Backend.Dto;
+﻿using System.Net.Mime;
+using LiteTorrent.Backend.Dto;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LiteTorrent.Backend;
 
 [ApiController]
 [Route("commands")]
-[Consumes("application/json")]
-[Produces("application/json")]
+[Consumes(MediaTypeNames.Application.Json)]
+[Produces(MediaTypeNames.Application.Json)]
 public class CommandController : ControllerBase
 {
     [HttpPost]
@@ -19,6 +20,6 @@ public class CommandController : ControllerBase
     [HttpGet("sharedFiles")]
     public Task<ActionResult<DtoSharedFile[]>> GetSharedFiles()
     {
-        return Task.FromResult((ActionResult<DtoSharedFile[]>)new []{new DtoSharedFile("hash", "rel", 0.1)});
+        return Task.FromResult((ActionResult<DtoSharedFile[]>)new []{new DtoSharedFile("hash", "rel", 10, 55)});
     }
 }

@@ -1,6 +1,5 @@
 ﻿using LiteTorrent.Domain.Services.Common.Serialization;
 using LiteTorrent.Domain.Services.PieceExchange.Messages;
-using LiteTorrent.Domain.Services.ShardExchange.Messages;
 using MessagePack;
 
 namespace LiteTorrent.Domain.Services.PieceExchange.Serialization;

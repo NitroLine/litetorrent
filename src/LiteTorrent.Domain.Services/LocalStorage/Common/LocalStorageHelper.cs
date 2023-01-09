@@ -59,7 +59,7 @@ public static class LocalStorageHelper
 
                 return new FileStream(path, DefaultFileStreamOptionsToRead);
             }
-            catch (IOException e)
+            catch (IOException)
             {
                 if (i == 4)
                     throw;

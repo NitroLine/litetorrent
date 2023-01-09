@@ -1,22 +1,21 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net6.0</TargetFramework>
+        <TargetFramework>net7.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\LiteTorrent.Domain\LiteTorrent.Domain.csproj" />
-      <ProjectReference Include="..\LiteTorrent.Core\LiteTorrent.Core.csproj" />
     </ItemGroup>
 
     <ItemGroup>
       <PackageReference Include="MessagePack" Version="2.4.59" />
       <PackageReference Include="MessagePipe" Version="1.7.4" />
-      <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="7.0.0" />
-      <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="7.0.0" />
-      <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.0" />
+      <PackageReference Include="Microsoft.Extensions.Configuration" Version="2.2.0" />
+      <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="2.2.0" />
+      <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="2.2.0" />
       <PackageReference Include="SimpleBase" Version="4.0.0" />
       <PackageReference Include="System.Linq.Async" Version="6.0.1" />
     </ItemGroup>

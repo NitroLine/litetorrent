@@ -1,6 +1,4 @@
-﻿using LiteTorrent.Domain.Services.ShardExchange.Messages;
-
-namespace LiteTorrent.Domain.Services.PieceExchange.Messages;
+﻿namespace LiteTorrent.Domain.Services.PieceExchange.Messages;
 
 public class HandlerResolver
 {

@@ -1,9 +1,8 @@
 ﻿using LiteTorrent.Domain.Services.LocalStorage.Pieces;
-using LiteTorrent.Domain.Services.PieceExchange.Messages;
 using MessagePack;
-using Serilog;
+using Microsoft.Extensions.Logging;
 
-namespace LiteTorrent.Domain.Services.ShardExchange.Messages;
+namespace LiteTorrent.Domain.Services.PieceExchange.Messages;
 
 [MessagePackObject]
 public record PieceResponseMessage(
@@ -15,10 +14,14 @@ public record PieceResponseMessage(
 public class PieceResponseMessageHandler : MessageHandler<PieceResponseMessage>
 {
     private readonly PieceRepository pieceRepository;
+    private readonly ILogger<PieceResponseMessageHandler> logger;
 
-    public PieceResponseMessageHandler(PieceRepository pieceRepository)
+    public PieceResponseMessageHandler(
+        PieceRepository pieceRepository, 
+        ILogger<PieceResponseMessageHandler> logger)
     {
         this.pieceRepository = pieceRepository;
+        this.logger = logger;
     }
     
     public override async Task<HandleResult> Handle(
@@ -26,7 +29,7 @@ public class PieceResponseMessageHandler : MessageHandler<PieceResponseMessage>
         PieceResponseMessage message,
         CancellationToken cancellationToken)
     {
-        Log.Debug($"Response : {message.Index}");
+        logger.LogDebug($"Response : {message.Index}");
         var writer = await pieceRepository.CreateWriter(context.SharedFile.Hash, cancellationToken);
         var writeResult = await writer.Write(new Piece(message.Index, message.Payload), cancellationToken);
         if (writeResult.TryGetError(out _, out var error))

@@ -1,36 +1,37 @@
 ﻿using System.Net;
+using LiteTorrent.Core;
 using LiteTorrent.Domain.Services.Common;
 using LiteTorrent.Domain.Services.LocalStorage.HashTrees;
 using LiteTorrent.Domain.Services.LocalStorage.SharedFiles;
 using LiteTorrent.Domain.Services.PieceExchange.Messages;
-using LiteTorrent.Domain.Services.ShardExchange.Transport;
+using LiteTorrent.Domain.Services.PieceExchange.Transport;
 using Microsoft.Extensions.Logging;
 
 namespace LiteTorrent.Domain.Services.PieceExchange;
 
-public class ShardExchanger
+public class PieceExchanger
 {
-    private readonly TorrentEndpoint endpoint;
+    private readonly string peerId;
+    private readonly TorrentServer server;
     private readonly TorrentConnector connector;
     private readonly HandlerResolver handlerResolver;
-    private readonly DownloadingConfiguration downloadingConfiguration;
     private readonly SharedFileRepository sharedFileRepository;
     private readonly HashTreeRepository hashTreeRepository;
-    private readonly ILogger<ShardExchanger> logger;
+    private readonly ILogger<PieceExchanger> logger;
 
-    public ShardExchanger(
-        TorrentEndpoint endpoint,
+    public PieceExchanger(
+        TorrentServer server,
         TorrentConnector connector,
-        HandlerResolver handlerResolver, 
-        DownloadingConfiguration downloadingConfiguration,
+        HandlerResolver handlerResolver,
         SharedFileRepository sharedFileRepository,
         HashTreeRepository hashTreeRepository,
-        ILogger<ShardExchanger> logger)
+        ILogger<PieceExchanger> logger)
     {
-        this.endpoint = endpoint;
+        peerId = Guid.NewGuid().ToString();
+        
+        this.server = server;
         this.connector = connector;
         this.handlerResolver = handlerResolver;
-        this.downloadingConfiguration = downloadingConfiguration;
         this.sharedFileRepository = sharedFileRepository;
         this.hashTreeRepository = hashTreeRepository;
         this.logger = logger;
@@ -40,7 +41,7 @@ public class ShardExchanger
     {
         while (!cancellationToken.IsCancellationRequested) 
         {
-            var peer = await endpoint.Accept("peer", cancellationToken);
+            var peer = await server.Accept(peerId, cancellationToken);
     #pragma warning disable CS4014
             ExceptionHelper.HandleException(StartReceiving(peer, cancellationToken), logger);
     #pragma warning restore CS4014
@@ -48,37 +49,37 @@ public class ShardExchanger
         }
     }
 
-    public async Task StartDownloading(CancellationToken cancellationToken)
+    /// <summary>
+    /// Try to download file from given hosts.  
+    /// </summary>
+    /// <returns>
+    /// If all file pieces were downloaded it returns Result.Ok else it returns Result with error 
+    /// </returns>
+    public async Task<Result<Unit>> TryDownload(
+        DnsEndPoint[] hosts,
+        SharedFile sharedFile,
+        CancellationToken cancellationToken)
     {
         while (!cancellationToken.IsCancellationRequested)
         {
-            var getAllResult = await sharedFileRepository.GetAll(cancellationToken);
-            if (getAllResult.TryGetError(out var sharedFiles, out var error))
-                throw new Exception(error.Message);
-            
-            foreach (var sharedFile in sharedFiles)
+            foreach (var host in hosts)
             {
-                var hosts = await GetHosts(sharedFile.Hash, cancellationToken);
-                foreach (var host in hosts)
-                {
-                    var peer = await connector.Connect(sharedFile, host, cancellationToken);
+                logger.LogInformation("Try to connect to {host}", host);
+                
+                var peer = await connector.Connect(sharedFile, host, cancellationToken);
 #pragma warning disable CS4014
-                    await ExceptionHelper.HandleException(
+                await ExceptionHelper.HandleException(
 #pragma warning restore CS4014
-                        HandleDownloadingPeer(peer, cancellationToken),
-                        logger);
+                    HandleDownloadingPeer(peer, cancellationToken),
+                    logger);
                     
-                    await hashTreeRepository.CreateOrReplace(peer.Context.SharedFile.HashTree);
+                await hashTreeRepository.CreateOrReplace(peer.Context.SharedFile.HashTree);
 
-                    await peer.Close(cancellationToken);
-                }
+                await peer.Close(cancellationToken);
             }
         }
-    }
 
-    private Task<DnsEndPoint[]> GetHosts(Hash hash, CancellationToken cancellationToken)
-    {
-        return Task.FromResult(downloadingConfiguration.AllowedPeers);
+        return Result.Ok;
     }
 
     private async Task HandleDownloadingPeer(Peer peer, CancellationToken cancellationToken)

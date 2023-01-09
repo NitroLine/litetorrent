@@ -1,21 +1,19 @@
 ﻿using LiteTorrent.Domain.Services.PieceExchange;
 using Microsoft.Extensions.Hosting;
 
-namespace LiteTorrent.Client.Cli;
+namespace LiteTorrent.Backend;
 
 public class LiteTorrentService : BackgroundService
 {
-    private readonly ShardExchanger exchanger;
+    private readonly PieceExchanger exchanger;
 
-    public LiteTorrentService(ShardExchanger exchanger)
+    public LiteTorrentService(PieceExchanger exchanger)
     {
         this.exchanger = exchanger;
     }
     
     protected override Task ExecuteAsync(CancellationToken cancellationToken)
     {
-        return Task.WhenAll(
-            exchanger.StartDistributing(cancellationToken),
-            exchanger.StartDownloading(cancellationToken));
+        return Task.WhenAll(exchanger.StartDistributing(cancellationToken));
     }
 }

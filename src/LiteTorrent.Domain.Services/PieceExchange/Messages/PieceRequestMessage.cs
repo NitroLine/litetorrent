@@ -1,8 +1,7 @@
 ﻿using LiteTorrent.Domain.Services.LocalStorage.HashTrees;
 using LiteTorrent.Domain.Services.LocalStorage.Pieces;
-using LiteTorrent.Domain.Services.ShardExchange.Messages;
 using MessagePack;
-using Serilog;
+using Microsoft.Extensions.Logging;
 
 namespace LiteTorrent.Domain.Services.PieceExchange.Messages;
 
@@ -15,11 +14,16 @@ public class PieceRequestMessageHandler : MessageHandler<PieceRequestMessage>
 {
     private readonly PieceRepository pieceRepository;
     private readonly HashTreeRepository hashTreeRepository;
+    private readonly ILogger<PieceRequestMessageHandler> logger;
 
-    public PieceRequestMessageHandler(PieceRepository pieceRepository, HashTreeRepository hashTreeRepository)
+    public PieceRequestMessageHandler(
+        PieceRepository pieceRepository,
+        HashTreeRepository hashTreeRepository,
+        ILogger<PieceRequestMessageHandler> logger)
     {
         this.pieceRepository = pieceRepository;
         this.hashTreeRepository = hashTreeRepository;
+        this.logger = logger;
     }
     
     public override async Task<HandleResult> Handle(
@@ -27,7 +31,7 @@ public class PieceRequestMessageHandler : MessageHandler<PieceRequestMessage>
         PieceRequestMessage message,
         CancellationToken cancellationToken)
     {
-        Log.Debug($"Request : {message.Index}");
+        logger.LogDebug($"Request : {message.Index}");
         var reader = await pieceRepository.CreateReader(context.SharedFile.Hash, cancellationToken);
         var readResult = await reader.Read(message.Index, cancellationToken);
         if (readResult.TryGetError(out var shard, out var error))

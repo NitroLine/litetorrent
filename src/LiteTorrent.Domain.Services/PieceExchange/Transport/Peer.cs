@@ -5,7 +5,7 @@ using LiteTorrent.Domain.Services.Common;
 using LiteTorrent.Domain.Services.PieceExchange.Messages;
 using LiteTorrent.Domain.Services.PieceExchange.Serialization;
 
-namespace LiteTorrent.Domain.Services.ShardExchange.Transport;
+namespace LiteTorrent.Domain.Services.PieceExchange.Transport;
 
 public class Peer
 {

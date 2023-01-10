@@ -46,7 +46,7 @@ public class Startup : StartupBase
             .AddHostedService<LiteTorrentService>();
         
         services
-            .AddLogging(builder => builder.AddConsole())
+            .AddLogging(builder => builder.AddConsole().AddDebug())
             .AddMvcCore()
             .AddJsonFormatters();
     }

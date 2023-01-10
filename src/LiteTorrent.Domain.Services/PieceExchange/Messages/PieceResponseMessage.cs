@@ -29,7 +29,7 @@ public class PieceResponseMessageHandler : MessageHandler<PieceResponseMessage>
         PieceResponseMessage message,
         CancellationToken cancellationToken)
     {
-        logger.LogDebug($"Response piece: {message.Index}");
+        logger.LogWarning($"Response piece: {message.Index}");
         
         var isAdded = context.SharedFile.HashTree.TryAdd(
             (int)message.Index,

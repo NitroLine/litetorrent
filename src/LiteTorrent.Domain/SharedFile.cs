@@ -22,5 +22,5 @@ public class SharedFile
     public string RelativePath { get; }
     public ulong SizeInBytes { get; }
     public uint PieceMaxSizeInBytes { get; }
-    public ulong ShardCount => SizeInBytes / PieceMaxSizeInBytes;
+    public ulong ShardCount => SizeInBytes / PieceMaxSizeInBytes + (SizeInBytes % PieceMaxSizeInBytes == 0 ? 0u : 1u);
 }

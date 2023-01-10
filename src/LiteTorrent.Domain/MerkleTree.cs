@@ -47,11 +47,13 @@ public class MerkleTree
         this.trees = trees;
         this.rootTree = rootTree;
         this.pieces = pieces;
+        leafCounts = CalculateLeafCounts(pieces.Length);
     }
 
     public MerkleTree(Hash[] pieces) : this(pieces.Length)
     {
         this.pieces = pieces.ToArray();
+        leafCounts = CalculateLeafCounts(pieces.Length);
         BuildAllTree(pieces);
     }
 
@@ -98,6 +100,19 @@ public class MerkleTree
         var currIndex = leafIndex + trees[treeIndex].Length - leafCounts[treeIndex];
         var itemHash = trees[treeIndex][currIndex];
         return GetTreePath(itemHash, treeIndex, currIndex);
+    }
+
+    private static List<int> CalculateLeafCounts(int pieceCount)
+    {
+        var leafCounts = new List<int>();
+        while (pieceCount != 0)
+        {
+            var leafCount = (int)Math.Pow(2, (int)Math.Log2(pieceCount));
+            leafCounts.Add(leafCount);
+            pieceCount -= leafCount;
+        }
+
+        return leafCounts;
     }
 
     private (int leafIndex, int treeIndex) GetIndexes(int index)
@@ -198,7 +213,7 @@ public class MerkleTree
         }
         var right = rootTree[treeIndex + 1];
         yield return right;
-        foreach (var hash in  GetRootPath(lastHash.Concat(right), treeIndex - 1))
+        foreach (var hash in GetRootPath(lastHash.Concat(right), treeIndex - 1))
         {
             yield return hash;
         }

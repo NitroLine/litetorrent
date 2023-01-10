@@ -15,9 +15,7 @@ public class PieceWriter
         string basePath)
     {
         fileFullName = Path.Join(basePath, sharedFile.RelativePath);
-        if (!File.Exists(fileFullName))
-            throw new FileNotFoundException(fileFullName);
-        
+
         this.sharedFile = sharedFile;
         this.basePath = basePath;
     }

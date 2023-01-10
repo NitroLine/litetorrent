@@ -108,8 +108,6 @@ public class PieceExchanger
                 logger);
                     
             await hashTreeRepository.CreateOrReplace(peer.Context.SharedFile.HashTree);
-
-            await peer.Close(cancellationToken);
         }
             
         source = null;
@@ -124,7 +122,7 @@ public class PieceExchanger
         var likedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         
         await await Task.WhenAny(
-            StartReceiving(peer, likedTokenSource.Token), 
+            StartReceiving(peer, likedTokenSource.Token),
             StartSendingPieceRequests(peer, likedTokenSource.Token));
         
         likedTokenSource.Cancel();
@@ -142,6 +140,9 @@ public class PieceExchanger
             
             await peer.Send(new PieceRequestMessage((ulong)i), cancellationToken);
         }
+        
+        if (!peer.IsClosed)
+            await peer.Close(cancellationToken);
     }
 
     private async Task StartReceiving(Peer peer, CancellationToken cancellationToken)
@@ -149,7 +150,10 @@ public class PieceExchanger
         await foreach (var receiveResult in peer.Receive(cancellationToken))
         {
             if (receiveResult.TryGetError(out var message, out var error))
-                throw new InvalidOperationException(error.Message);
+            {
+                logger.LogWarning(error.Message);
+                continue;
+            }
 
             var handler = handlerResolver.Resolve(message);
             var handleResult = await handler.Handle(peer.Context, message, cancellationToken);

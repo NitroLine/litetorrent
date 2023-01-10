@@ -7,7 +7,6 @@ public class PieceReader
 {
     private readonly string fileFullName;
     private readonly SharedFile sharedFile;
-    private readonly string basePath;
 
     public PieceReader(SharedFile sharedFile, string basePath)
     {
@@ -16,7 +15,6 @@ public class PieceReader
             throw new FileNotFoundException(fileFullName);
         
         this.sharedFile = sharedFile;
-        this.basePath = basePath;
     }
 
     // ReSharper disable once ParameterTypeCanBeEnumerable.Global

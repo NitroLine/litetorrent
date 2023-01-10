@@ -1,4 +1,5 @@
 ﻿using System.Security.Cryptography;
+using SimpleBase;
 
 namespace LiteTorrent.Domain;
 
@@ -76,6 +77,6 @@ public readonly struct Hash
 
     public override string ToString()
     {
-        return Convert.ToHexString(sha256Data);
+        return Base32.Rfc4648.Encode(sha256Data);
     }
 }

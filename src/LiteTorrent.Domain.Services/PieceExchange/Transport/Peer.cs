@@ -21,10 +21,15 @@ public class Peer
         Context = context;
     }
     
+    public bool IsClosed { get; private set; }
+    
     public ConnectionContext Context { get; }
 
     public Task Send(object message, CancellationToken cancellationToken)
     {
+        if (IsClosed)
+            throw new InvalidOperationException();
+        
         return webSocket.SendAsync(
             MessageSerializer.Serialize(message),
             WebSocketMessageType.Binary,
@@ -34,9 +39,14 @@ public class Peer
 
     public async IAsyncEnumerable<Result<object>> Receive([EnumeratorCancellation] CancellationToken cancellationToken)
     {
+        if (IsClosed)
+            throw new InvalidOperationException();
+        
         var receiveResult = await webSocket.ReceiveAsync(buffer, cancellationToken);
         if (receiveResult.MessageType == WebSocketMessageType.Close)
         {
+            await Close(cancellationToken);
+            
             yield return ErrorRegistry.Peer.ConnectionIsClosed();
             yield break;
         }
@@ -48,6 +58,8 @@ public class Peer
 
     public Task Close(CancellationToken cancellationToken)
     {
+        IsClosed = true;
+        
         return webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, null, cancellationToken);
     }
 }

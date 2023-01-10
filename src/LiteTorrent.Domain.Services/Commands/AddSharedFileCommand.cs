@@ -24,10 +24,14 @@ public class AddSharedFileCommandHandler
         AddSharedFileCommand request,
         CancellationToken cancellationToken)
     {
-        await using var torrentFile = new FileStream(request.AbsoluteFilePath, FileMode.Open, FileAccess.Read);
+        await using var torrentFile = new FileStream(
+            request.AbsoluteFilePath, 
+            FileMode.Open, 
+            FileAccess.Read);
                     
         var dto = MessagePackSerializer.Deserialize<DtoMessagePackTorrentFile>(
-            torrentFile, SerializerHelper.DefaultOptions,
+            torrentFile, 
+            SerializerHelper.DefaultOptions,
             cancellationToken);
         
         var createInfo = new SharedFileCreateInfo(
@@ -36,7 +40,7 @@ public class AddSharedFileCommandHandler
         
         var createResult = await sharedFileRepository.Save(
             dto.Hash,
-            0,
+            (long)dto.SizeInBytes,
             createInfo,
             cancellationToken);
         

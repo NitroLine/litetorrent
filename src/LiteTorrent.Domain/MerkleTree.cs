@@ -26,12 +26,12 @@ public class MerkleTree
         {
             var leafCount = (int)Math.Pow(2, (int)Math.Log2(count));
             leafCounts.Add(leafCount);
-            trees.Add(new Hash[2 * leafCount - 1]);
+            trees.Add(Hash.CreateArray(2 * leafCount - 1));
             count -= leafCount;
         }
 
-        rootTree = new Hash[trees.Count * 2 - 1];
-        pieces = new Hash[count];
+        rootTree = Hash.CreateArray(trees.Count * 2 - 1);
+        pieces = Hash.CreateArray(count);
     }
 
     public MerkleTree(int count, Hash rootHash) : this(count)

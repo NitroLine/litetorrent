@@ -4,15 +4,23 @@ namespace LiteTorrent.Domain;
 
 public readonly struct Hash
 {
-    private static readonly byte[] EmptyData = new byte[32]; 
-    private readonly byte[] sha256Data = EmptyData;
+    // ReSharper disable once MemberCanBePrivate.Global
+    public static readonly Hash Empty = new(new byte[32]);
 
+    private readonly byte[] sha256Data;
+
+    // ReSharper disable once UnusedMember.Global
+    public Hash()
+    {
+        sha256Data = Empty.sha256Data;
+    }
+    
     private Hash(byte[] sha256Data)
     {
         this.sha256Data = sha256Data;
     }
 
-    public bool IsEmpty => sha256Data == EmptyData;
+    public bool IsEmpty => this == Empty;
 
     public ReadOnlyMemory<byte> Data => sha256Data;
     
@@ -32,19 +40,24 @@ public readonly struct Hash
     
     public static bool operator ==(Hash hash1, Hash hash2)
     {
-        return hash1.sha256Data.SequenceEqual(hash2.sha256Data);
+        return hash1.sha256Data == hash2.sha256Data || hash1.sha256Data.SequenceEqual(hash2.sha256Data);
     }
 
     public static bool operator !=(Hash hash1, Hash hash2)
     {
         return !(hash1 == hash2);
     }
+    
+    public static Hash[] CreateArray(int count)
+    {
+        return Enumerable.Repeat(Empty, count).ToArray();
+    }
 
     public Hash Concat(Hash hash2)
     {
         return CreateFromRaw(sha256Data.Concat(hash2.sha256Data).ToArray());
     }
-    
+
     // ReSharper disable once MemberCanBePrivate.Global
     public bool Equals(Hash other)
     {

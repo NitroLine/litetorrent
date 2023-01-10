@@ -32,6 +32,7 @@ public static class Program
             }
             case "add":
             {
+                Add(args);
                 break;
             }
             case "show":
@@ -76,6 +77,33 @@ public static class Program
         request.Content = new StringContent(
             JsonSerializer.Serialize(createInfo),
             MediaTypeHeaderValue.Parse(MediaTypeNames.Application.Json));
+        var responseMessage = client.Send(request);
+        
+        if (responseMessage.StatusCode is HttpStatusCode.NoContent)
+            Console.WriteLine("Successfully completed");
+        else
+        {
+            var output = new StreamReader(responseMessage.Content.ReadAsStream()).ReadToEnd();
+            Console.WriteLine(output);
+        }
+    }
+
+    private static void Add(string[] args)
+    {
+        if (args.Length < 2)
+        {
+            Console.WriteLine("No ABS_TORRENT_FILE_PATH");
+            return;
+        }
+
+        using var client = new HttpClient();
+        using var request = new HttpRequestMessage(HttpMethod.Post, $"{BaseUrl}/commands/add");
+
+        var torrentFile = new DtoTorrentFile(args[1]);
+        request.Content = new StringContent(
+            JsonSerializer.Serialize(torrentFile),
+            MediaTypeHeaderValue.Parse(MediaTypeNames.Application.Json));
+
         var responseMessage = client.Send(request);
         
         if (responseMessage.StatusCode is HttpStatusCode.NoContent)

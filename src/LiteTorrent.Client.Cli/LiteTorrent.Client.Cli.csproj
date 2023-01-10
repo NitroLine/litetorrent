@@ -32,6 +32,9 @@
       <Compile Include="..\LiteTorrent.Backend\Dto\DtoStartDownloadingInfo.cs">
         <Link>Dto\DtoStartDownloadingInfo.cs</Link>
       </Compile>
+      <Compile Include="..\LiteTorrent.Backend\Dto\DtoTorrentFile.cs">
+        <Link>Dto\DtoTorrentFile.cs</Link>
+      </Compile>
     </ItemGroup>
 
 </Project>

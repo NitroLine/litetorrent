@@ -1,3 +1,5 @@
-﻿namespace LiteTorrent.Backend.Dto;
+﻿using System.Text.Json.Serialization;
 
-public record DtoTorrentFile;
+namespace LiteTorrent.Backend.Dto;
+
+public record DtoTorrentFile([property: JsonPropertyName("fileFullName")] string FileFullName);

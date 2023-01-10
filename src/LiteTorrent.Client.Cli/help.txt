@@ -10,6 +10,10 @@ parse ABS_TORRENT_FILE_PATH
 
 add ABS_TORRENT_FILE_PATH
     Register shared file in client
+    
+
+delete HASH
+    Unregister shared file in client. Downloaded data is saved.
 
 
 show

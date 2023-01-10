@@ -19,6 +19,8 @@ public class PieceExchanger
     private readonly HashTreeRepository hashTreeRepository;
     private readonly ILogger<PieceExchanger> logger;
 
+    private readonly Hash? downloadingFileHash; 
+
     public PieceExchanger(
         TorrentServer server,
         TorrentConnector connector,
@@ -47,6 +49,11 @@ public class PieceExchanger
     #pragma warning restore CS4014
             await hashTreeRepository.CreateOrReplace(peer.Context.SharedFile.HashTree);
         }
+    }
+
+    public Task<Hash> GetDownloadingFile()
+    {
+        return Task.FromResult(Hash.CreateFromRaw(new ReadOnlyMemory<byte>()));
     }
 
     /// <summary>

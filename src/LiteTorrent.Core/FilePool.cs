@@ -12,7 +12,15 @@ public class FilePool
         foreach (var semaphore in semaphoresToWait) 
             await semaphore.WaitAsync();
         
-        return new FileLock(new FileStream(fullFileName, options), semaphoresToWait[0]);
+        try
+        {
+            return new FileLock(new FileStream(fullFileName, options), semaphoresToWait[0]);
+        }
+        catch
+        {
+            semaphoresToWait[0].Release();
+            throw;
+        }
     }
 
     private async Task<SemaphoreSlim[]> GetSemaphores(params string[] keys)

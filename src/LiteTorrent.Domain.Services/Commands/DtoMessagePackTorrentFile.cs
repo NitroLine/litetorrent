@@ -1,12 +1,10 @@
-﻿using System.Net;
-using MessagePack;
+﻿using MessagePack;
 
 namespace LiteTorrent.Domain.Services.Commands;
 
 [MessagePackObject]
-public record DtoUserSharedFile(
+public record DtoMessagePackTorrentFile(
     [property: Key("Hash")] Hash Hash,
-    [property: Key("Trackers")] IReadOnlyList<DnsEndPoint> Trackers,
     [property: Key("RelativePath")] string RelativePath, 
     [property: Key("SizeInBytes")] ulong SizeInBytes,
     [property: Key("ShardMaxSizeInBytes")] uint ShardMaxSizeInBytes

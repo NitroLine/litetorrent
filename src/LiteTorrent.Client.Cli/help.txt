@@ -1,6 +1,11 @@
-﻿create RELATIVE_PATH
+﻿create RELATIVE_PATH OUTPUT_PATH
     Create torrent-file from raw file with RELATIVE_PATH (relatively base path from backend config)
-    Output file will be in the working directory.
+    OUTPUT_PATH is absolute path.
+    Register the created file in client.
+    
+
+parse ABS_TORRENT_FILE_PATH
+    Parse torrent-file and print like JSON. 
     
 
 add ABS_TORRENT_FILE_PATH
@@ -9,7 +14,7 @@ add ABS_TORRENT_FILE_PATH
 
 show
     Show all registered shared files in client.
-    (hash, relativePath, )
+    (hash, relativePath, downloadedCount, totalCount)
     
 
 download HASH HOST1, [HOST2, ...]

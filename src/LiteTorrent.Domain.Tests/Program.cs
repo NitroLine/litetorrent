@@ -1,28 +1,44 @@
-﻿// See https://aka.ms/new-console-template for more information
+﻿using LiteTorrent.Domain.Services.Common.Serialization;
+using LiteTorrent.Domain.Services.LocalStorage.HashTrees;
+using LiteTorrent.Domain.Services.LocalStorage.Pieces;
+using LiteTorrent.Domain.Services.LocalStorage.SharedFiles;
+using MessagePipe;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
-using System.Text;
-using LiteTorrent.Domain;
+namespace LiteTorrent.Domain.Tests;
 
-Hash GetHash(string s)
+public static class Program
 {
-    return Hash.CreateFromRaw(new ReadOnlyMemory<byte>(Encoding.UTF8.GetBytes(s)));
+    public static async Task Main()
+    {
+        var services = new ServiceCollection();
+        var commonConfig = new ConfigurationBuilder()
+            .AddJsonFile("appsettings.json")
+            .Build();
+        
+        var configParser = new ConfigurationParser(commonConfig);
+        var localStorageConfiguration = configParser.GetLocalStorageConfiguration();
+        var transportConfiguration = configParser.GetTransportConfiguration();
+        
+        services.AddMessagePipe();
+
+        services
+            .AddLogging()
+            .AddSingleton(localStorageConfiguration)
+            .AddSingleton(transportConfiguration)
+            .AddSingleton<SharedFileRepository>()
+            .AddSingleton<PieceRepository>()
+            .AddSingleton<HashTreeRepository>();
+
+        var provider = services.BuildServiceProvider();
+
+        var hashTreeRepository = provider.GetService<HashTreeRepository>()!;
+
+        var tree = new MerkleTree(new[] { Hash.CreateFromRaw(new ReadOnlyMemory<byte>(new byte[] { 0, 1, 2 })) });
+        var result = await hashTreeRepository.CreateOrReplace(tree);
+        
+        Console.WriteLine("STOP");
+        Console.ReadKey();
+    }
 }
-
-var merkleTree = new MerkleTree(13, GetHash("1234").Concat(GetHash("5")).Concat(GetHash("6")).Concat(GetHash("7")).Concat(GetHash("8")));
-
-var a = merkleTree.TryAdd(9, GetHash("6"), new[] { GetHash("5"), GetHash("7"), GetHash("8"), GetHash("1234") });
-Console.WriteLine(a);
-var data = new[]
-    { GetHash("5"), GetHash("7"), GetHash("8"), GetHash("1"), GetHash("2"), GetHash("3"), GetHash("4"), GetHash("23") };
-var buildedTree = new MerkleTree(data);
-Console.WriteLine(buildedTree.RootHash);
-var rootHash = buildedTree.RootHash;
-foreach (var hash in buildedTree.GetPath(1))
-{
-    Console.WriteLine(hash);
-}
-
-var path = buildedTree.GetPath(2);
-var newTree = new MerkleTree(data.Length, rootHash);
-Console.WriteLine(newTree.TryAdd(2, data[2], path.ToArray()));
-

@@ -12,7 +12,7 @@ public class HashTreeRepository
     private static readonly MessagePackSerializerOptions Options = LocalStorageHelper.SerializerOptions;
     
     private readonly LocalStorageConfiguration configuration;
-    
+
     public HashTreeRepository(LocalStorageConfiguration configuration)
     {
         this.configuration = configuration;
@@ -23,12 +23,12 @@ public class HashTreeRepository
     /// </summary>
     public async Task<Result<Unit>> CreateOrReplace(MerkleTree merkleTree)
     {
-        await using var file = GetFileStream(merkleTree.RootHash);
-        
+        await using var fileLock = await LocalStorageHelper.FilePool.GetToWrite(GetFileName(merkleTree.RootHash));
+
         var (trees, rootTree, rootHash, pieces) = merkleTree.GetInnerData();
 
         await MessagePackSerializer.SerializeAsync(
-            file,
+            fileLock.FileStream,
             new DtoHashTree(trees, rootTree, rootHash, pieces),
             Options);
 
@@ -38,16 +38,15 @@ public class HashTreeRepository
     /// <param name="hash">Correlated shared file hash</param>
     public async Task<Result<MerkleTree>> Get(Hash hash)
     {
-        await using var file = GetFileStream(hash);
+        await using var fileLock = await LocalStorageHelper.FilePool.GetToRead(GetFileName(hash));
 
-        var dto = await MessagePackSerializer.DeserializeAsync<DtoHashTree>(file, Options);
+        var dto = await MessagePackSerializer.DeserializeAsync<DtoHashTree>(fileLock.FileStream, Options);
 
         return new MerkleTree(dto.Trees, dto.RootTree, dto.RootHash, dto.Pieces);
     }
 
-    private FileStream GetFileStream(Hash rootHash)
+    private string GetFileName(Hash rootHash)
     {
-        var path = Path.Join(configuration.HashTreeDirectoryPath, Base32.Rfc4648.Encode(rootHash.Data.Span));
-        return LocalStorageHelper.GetFileStreamToWrite(path);
+        return configuration.InHashTreeDir(Base32.Rfc4648.Encode(rootHash.Data.Span));
     }
 }

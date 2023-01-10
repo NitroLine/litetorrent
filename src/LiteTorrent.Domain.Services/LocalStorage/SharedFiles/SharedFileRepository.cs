@@ -28,11 +28,11 @@ public class SharedFileRepository
         SharedFileCreateInfo sharedFileInfo, 
         CancellationToken cancellationToken)
     {
-        var rawFilePath = Path.Join(configuration.ShardDirectoryPath, sharedFileInfo.RelativePath);
-        await using var dataStream = new FileStream(rawFilePath, FileMode.Open, FileAccess.Read);
+        var rawFileInfo = new FileInfo(configuration.InPieceDir(sharedFileInfo.RelativePath));
+        await using var dataStreamLock = await LocalStorageHelper.FilePool.GetToRead(rawFileInfo.FullName);
         
         var shardHashes = await LocalStorageHelper
-            .SplitData(dataStream, sharedFileInfo.ShardMaxSizeInBytes, cancellationToken)
+            .SplitData(dataStreamLock.FileStream, sharedFileInfo.ShardMaxSizeInBytes, cancellationToken)
             .Select(shard => Hash.CreateFromRaw(shard.Data))
             .ToArrayAsync(cancellationToken);
 
@@ -41,8 +41,8 @@ public class SharedFileRepository
         if (createResult.TryGetError(out _, out var error))
             return error;
 
-        await using var file = LocalStorageHelper.GetFileStreamToWrite(GetFileName(hashTree.RootHash));
-        await SaveSharedFileInfo(file, sharedFileInfo, cancellationToken);
+        var sharedFilePath = configuration.InSharedFileDir(GetFileName(hashTree.RootHash));
+        var dto = await SaveSharedFileInfo(sharedFilePath, rawFileInfo.Length, sharedFileInfo, cancellationToken);
 
         return hashTree.RootHash;
     }
@@ -51,14 +51,17 @@ public class SharedFileRepository
     /// Save in storage with id = hash.
     /// Useful for save shared file that was downloaded from remote sources.   
     /// </summary>
-    public async Task<Result<Unit>> Create(
-        Hash hash, 
+    public async Task<Result<Unit>> Save(
+        Hash hash,
+        long sizeInBytes,
         SharedFileCreateInfo createInfo, 
         CancellationToken cancellationToken)
     {
-        await using var file = LocalStorageHelper.GetFileStreamToWrite(GetFileName(hash));
-
-        var dto = await SaveSharedFileInfo(file, createInfo, cancellationToken);
+        var dto = await SaveSharedFileInfo(
+            Path.Join(configuration.SharedFileDirectoryPath, GetFileName(hash)),
+            sizeInBytes,
+            createInfo,
+            cancellationToken);
 
         var hashTree = new MerkleTree((int)(dto.SizeInBytes / dto.ShardMaxSizeInBytes), hash);
         var saveResult = await hashTreeRepository.CreateOrReplace(hashTree);
@@ -68,10 +71,10 @@ public class SharedFileRepository
 
     public async Task<Result<SharedFile>> Get(Hash hash, CancellationToken cancellationToken)
     {
-        await using var file = LocalStorageHelper.GetFileStreamToRead(
+        await using var fileLock = await LocalStorageHelper.FilePool.GetToRead(
             LocalStorageHelper.GetFilePath(configuration.SharedFileDirectoryPath, hash));
 
-        return await InnerGet(file, hash, cancellationToken);
+        return await InnerGet(fileLock.FileStream, hash, cancellationToken);
     }
 
     public async Task<Result<List<SharedFile>>> GetAll(CancellationToken cancellationToken)
@@ -79,10 +82,10 @@ public class SharedFileRepository
         var result = new List<SharedFile>();
         foreach (var fileName in Directory.EnumerateFiles(configuration.SharedFileDirectoryPath))
         {
-            await using var file = LocalStorageHelper.GetFileStreamToRead(fileName);
+            await using var fileLock = await LocalStorageHelper.FilePool.GetToRead(fileName);
 
             var getResult = await InnerGet(
-                file, 
+                fileLock.FileStream, 
                 GetHashFromFileName(fileName),
                 cancellationToken);
 
@@ -95,26 +98,27 @@ public class SharedFileRepository
         return result;
     }
     
-    private static Hash GetHashFromFileName(string fileName)
+    private static Hash GetHashFromFileName(string fileFullName)
     {
-        return Hash.CreateFromSha256(Base32.Rfc4648.Decode(fileName));
+        return Hash.CreateFromSha256(Base32.Rfc4648.Decode(new FileInfo(fileFullName).Name));
     }
     
     private static string GetFileName(Hash hash) => Base32.Rfc4648.Encode(hash.Data.Span);
 
     private static async Task<DtoSharedFile> SaveSharedFileInfo(
-        Stream stream,
+        string fileName,
+        long sizeInBytes,
         SharedFileCreateInfo createInfo,
         CancellationToken cancellationToken)
     {
         var dto = new DtoSharedFile(
-            createInfo.Trackers, 
             createInfo.RelativePath, 
-            createInfo.SizeInBytes,
+            (ulong)sizeInBytes,
             createInfo.ShardMaxSizeInBytes);
 
+        await using var fileLock = await LocalStorageHelper.FilePool.GetToWrite(fileName);
         await MessagePackSerializer.SerializeAsync(
-            stream, 
+            fileLock.FileStream,
             dto,
             LocalStorageHelper.SerializerOptions, 
             cancellationToken);
@@ -134,6 +138,6 @@ public class SharedFileRepository
         if (getHashTreeResult.TryGetError(out var hashTree, out var errorInfo))
             return errorInfo;
 
-        return new SharedFile(hashTree, dto.Trackers, dto.RelativePath, dto.SizeInBytes, dto.ShardMaxSizeInBytes);
+        return new SharedFile(hashTree, dto.RelativePath, dto.SizeInBytes, dto.ShardMaxSizeInBytes);
     }
 }

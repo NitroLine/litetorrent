@@ -24,7 +24,7 @@ public class ConfigurationParser
             configuration[$"{prefix}:HashTreeDirectoryPath"] ?? throw new ConfigurationParsingException(),
             configuration[$"{prefix}:SharedFileDirectoryPath"] ?? throw new ConfigurationParsingException());
 
-        Directory.CreateDirectory(config.ShardDirectoryPath);
+        Directory.CreateDirectory(config.PieceDirectoryPath);
         Directory.CreateDirectory(config.HashTreeDirectoryPath);
         Directory.CreateDirectory(config.SharedFileDirectoryPath);
 

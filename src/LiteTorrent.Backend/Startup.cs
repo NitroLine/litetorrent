@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace LiteTorrent.Backend;
 
@@ -41,11 +42,11 @@ public class Startup : StartupBase
             .AddSingleton<PieceResponseMessageHandler>()
             .AddSingleton<PieceExchanger>();
 
-        services
-            .AddHostedService<LiteTorrentService>();
+        // services
+        //     .AddHostedService<LiteTorrentService>();
         
         services
-            .AddLogging()
+            .AddLogging(builder => builder.AddConsole())
             .AddMvcCore()
             .AddJsonFormatters();
     }

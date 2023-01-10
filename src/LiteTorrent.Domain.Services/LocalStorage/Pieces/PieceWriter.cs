@@ -2,7 +2,7 @@
 using LiteTorrent.Domain.Services.Common;
 using LiteTorrent.Domain.Services.LocalStorage.Common;
 
-namespace LiteTorrent.Domain.Services.LocalStorage.Shards;
+namespace LiteTorrent.Domain.Services.LocalStorage.Pieces;
 
 public class PieceWriter
 {
@@ -26,9 +26,9 @@ public class PieceWriter
         Piece piece,
         CancellationToken cancellationToken)
     {
-        await using var fileStream = LocalStorageHelper.GetFileStreamToWrite(basePath);
+        await using var fileLock = await LocalStorageHelper.FilePool.GetToWrite(basePath);
         
-        var result = await WriteInStream(fileStream, piece, cancellationToken);
+        var result = await WriteInStream(fileLock.FileStream, piece, cancellationToken);
         
         return result.TryGetError(out _, out var error) ? error : Result.Ok;
     }

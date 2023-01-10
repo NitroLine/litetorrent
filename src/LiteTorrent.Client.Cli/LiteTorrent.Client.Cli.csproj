@@ -22,4 +22,16 @@
       </None>
     </ItemGroup>
 
+    <ItemGroup>
+      <Compile Include="..\LiteTorrent.Backend\Dto\DtoCreateInfo.cs">
+        <Link>Dto\DtoCreateInfo.cs</Link>
+      </Compile>
+      <Compile Include="..\LiteTorrent.Backend\Dto\DtoSharedFile.cs">
+        <Link>Dto\DtoSharedFile.cs</Link>
+      </Compile>
+      <Compile Include="..\LiteTorrent.Backend\Dto\DtoStartDownloadingInfo.cs">
+        <Link>Dto\DtoStartDownloadingInfo.cs</Link>
+      </Compile>
+    </ItemGroup>
+
 </Project>

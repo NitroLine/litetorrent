@@ -12,7 +12,7 @@ public class PieceReader
     {
         var path = Path.Join(basePath, sharedFile.RelativePath);
         if (!File.Exists(path))
-            throw new FileNotFoundException();
+            throw new FileNotFoundException(path);
         
         this.sharedFile = sharedFile;
         this.basePath = basePath;
@@ -23,9 +23,9 @@ public class PieceReader
         ulong index, 
         CancellationToken cancellationToken)
     {
-        await using var fileStream = LocalStorageHelper.GetFileStreamToRead(basePath);
+        await using var fileLock = await LocalStorageHelper.FilePool.GetToRead(basePath);
 
-        var readResult = await ReadFromStream(fileStream, index, cancellationToken);
+        var readResult = await ReadFromStream(fileLock.FileStream, index, cancellationToken);
         if (readResult.TryGetError(out var shard, out var error))
             return error;
 

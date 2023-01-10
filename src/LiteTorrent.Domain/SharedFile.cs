@@ -1,6 +1,4 @@
-﻿using System.Net;
-
-namespace LiteTorrent.Domain;
+﻿namespace LiteTorrent.Domain;
 
 /// <summary>
 /// Meta information about file distributing in torrent network
@@ -9,13 +7,11 @@ public class SharedFile
 {
     public SharedFile(
         MerkleTree hashTree,
-        IReadOnlyList<DnsEndPoint> trackers, 
         string relativePath, 
         ulong sizeInBytes,
         uint pieceMaxSizeInBytes)
     {
         HashTree = hashTree;
-        Trackers = trackers;
         RelativePath = relativePath;
         SizeInBytes = sizeInBytes;
         PieceMaxSizeInBytes = pieceMaxSizeInBytes;
@@ -23,7 +19,6 @@ public class SharedFile
     
     public MerkleTree HashTree { get; }
     public Hash Hash => HashTree.RootHash;
-    public IReadOnlyList<DnsEndPoint> Trackers { get; }
     public string RelativePath { get; }
     public ulong SizeInBytes { get; }
     public uint PieceMaxSizeInBytes { get; }

@@ -1,4 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
+using LiteTorrent.Core;
 using LiteTorrent.Domain.Services.Common.Serialization;
 using MessagePack;
 using MessagePack.Resolvers;
@@ -8,66 +9,35 @@ namespace LiteTorrent.Domain.Services.LocalStorage.Common;
 
 public static class LocalStorageHelper
 {
+    public static readonly FilePool FilePool = new();
+    
     public static readonly MessagePackSerializerOptions SerializerOptions = new(
         CompositeResolver.Create(
             StandardResolver.Instance,
             HashResolver.Instance,
             DnsEndpointResolver.Instance));
 
-    private static readonly FileStreamOptions DefaultFileStreamOptionsToRead = new();
+    private static readonly FileStreamOptions DefaultFileStreamOptionsToRead = new()
+    {
+        Mode = FileMode.Open,
+        Access = FileAccess.Read
+    };
 
     private static readonly FileStreamOptions DefaultFileStreamOptionsToWrite = new()
     {
-        Mode = FileMode.Open,
-        Access = FileAccess.Write, 
-        Share = FileShare.Write
+        Mode = FileMode.OpenOrCreate,
+        Access = FileAccess.Write
     };
 
-    public static FileStream GetFileStreamToWrite(string path)
-    {
-        Console.WriteLine(Thread.CurrentThread.ManagedThreadId);
-        Console.WriteLine(path);
-        for (var i = 0; i < 5; i++)
-        {
-            try
-            {
-                var fileInfo = new FileInfo(path);
-                if (!fileInfo.Exists)
-                    File.Create(path);
-
-                return new FileStream(path, DefaultFileStreamOptionsToWrite);
-            }
-            catch (IOException e)
-            {
-                if (i == 4)
-                    throw;
-            }
-        }
-
-        throw new Exception();
-    }
-
-    public static FileStream GetFileStreamToRead(string path)
-    {
-        for (var i = 0; i < 5; i++)
-        {
-            try
-            {
-                var fileInfo = new FileInfo(path);
-                if (!fileInfo.Exists)
-                    File.Create(path);
-
-                return new FileStream(path, DefaultFileStreamOptionsToRead);
-            }
-            catch (IOException)
-            {
-                if (i == 4)
-                    throw;
-            }
-        }
-
-        throw new Exception();
-    }
+    // public static FileStream GetFileStreamToWrite(string path)
+    // {
+    //     return new FileStream(path, DefaultFileStreamOptionsToWrite);
+    // }
+    //
+    // public static FileStream GetFileStreamToRead(string path)
+    // {
+    //     return new FileStream(path, DefaultFileStreamOptionsToRead);
+    // }
 
     public static string GetFilePath(string baseDir, Hash hash)
     {
@@ -89,5 +59,15 @@ public static class LocalStorageHelper
             count = await dataStream.ReadAsync(buffer, cancellationToken);
             index++;
         }
+    }
+
+    public static Task<FileLock> GetToRead(this FilePool pool, string fullFileName)
+    {
+        return pool.GetAsync(fullFileName, DefaultFileStreamOptionsToRead);
+    }
+    
+    public static Task<FileLock> GetToWrite(this FilePool pool, string fullFileName)
+    {
+        return pool.GetAsync(fullFileName, DefaultFileStreamOptionsToWrite);
     }
 }

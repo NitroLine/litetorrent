@@ -9,7 +9,18 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\LiteTorrent.Domain\LiteTorrent.Domain.csproj" />
+      <ProjectReference Include="..\LiteTorrent.Domain.Services\LiteTorrent.Domain.Services.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Update="appsettings.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.2.0" />
+      <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
     </ItemGroup>
 
 </Project>

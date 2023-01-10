@@ -4,7 +4,7 @@ using LiteTorrent.Domain.Services.LocalStorage.SharedFiles;
 using MessagePack;
 using MessagePipe;
 
-namespace LiteTorrent.Domain.Services.Commands.AddSharedFile;
+namespace LiteTorrent.Domain.Services.Commands;
 
 public record AddSharedFileCommand(
     string AbsoluteFilePath
@@ -26,18 +26,17 @@ public class AddSharedFileCommandHandler
     {
         await using var torrentFile = new FileStream(request.AbsoluteFilePath, FileMode.Open, FileAccess.Read);
                     
-        var dto = MessagePackSerializer.Deserialize<DtoUserSharedFile>(
+        var dto = MessagePackSerializer.Deserialize<DtoMessagePackTorrentFile>(
             torrentFile, SerializerHelper.DefaultOptions,
             cancellationToken);
         
         var createInfo = new SharedFileCreateInfo(
-            dto.Trackers,
             dto.RelativePath,
-            dto.SizeInBytes,
             dto.ShardMaxSizeInBytes);
         
-        var createResult = await sharedFileRepository.Create(
+        var createResult = await sharedFileRepository.Save(
             dto.Hash,
+            0,
             createInfo,
             cancellationToken);
         

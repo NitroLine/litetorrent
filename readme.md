@@ -1,4 +1,6 @@
 # litetorrent
-poor torrent client + tracker
+- Нельзя обмениваться файлами размером не более 32 байта
+- Если файл скачивается, то он не раздаётся
+- Одновременно может скачиваться не более одного файла
 
 Traker: https://github.com/AlexMoshkov/litetorrent-tracker

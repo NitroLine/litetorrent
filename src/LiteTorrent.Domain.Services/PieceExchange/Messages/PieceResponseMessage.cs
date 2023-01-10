@@ -29,7 +29,19 @@ public class PieceResponseMessageHandler : MessageHandler<PieceResponseMessage>
         PieceResponseMessage message,
         CancellationToken cancellationToken)
     {
-        logger.LogDebug($"Response : {message.Index}");
+        logger.LogDebug($"Response piece: {message.Index}");
+        
+        var isAdded = context.SharedFile.HashTree.TryAdd(
+            (int)message.Index,
+            Hash.CreateFromRaw(message.Payload),
+            message.ConfirmationPath);
+        
+        if (!isAdded)
+        {
+            logger.LogWarning("Invalid Hash");
+            return HandleResult.OkNotSend;
+        }
+        
         var writer = await pieceRepository.CreateWriter(context.SharedFile.Hash, cancellationToken);
         var writeResult = await writer.Write(new Piece(message.Index, message.Payload), cancellationToken);
         if (writeResult.TryGetError(out _, out var error))

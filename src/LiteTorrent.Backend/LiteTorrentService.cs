@@ -14,6 +14,6 @@ public class LiteTorrentService : BackgroundService
     
     protected override Task ExecuteAsync(CancellationToken cancellationToken)
     {
-        return Task.WhenAll(exchanger.StartDistributing(cancellationToken));
+        return exchanger.StartDistributing(cancellationToken);
     }
 }

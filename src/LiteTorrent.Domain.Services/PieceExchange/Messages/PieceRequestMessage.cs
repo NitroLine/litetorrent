@@ -1,5 +1,4 @@
-﻿using LiteTorrent.Domain.Services.LocalStorage.HashTrees;
-using LiteTorrent.Domain.Services.LocalStorage.Pieces;
+﻿using LiteTorrent.Domain.Services.LocalStorage.Pieces;
 using MessagePack;
 using Microsoft.Extensions.Logging;
 
@@ -13,16 +12,13 @@ public record PieceRequestMessage(
 public class PieceRequestMessageHandler : MessageHandler<PieceRequestMessage>
 {
     private readonly PieceRepository pieceRepository;
-    private readonly HashTreeRepository hashTreeRepository;
     private readonly ILogger<PieceRequestMessageHandler> logger;
 
     public PieceRequestMessageHandler(
         PieceRepository pieceRepository,
-        HashTreeRepository hashTreeRepository,
         ILogger<PieceRequestMessageHandler> logger)
     {
         this.pieceRepository = pieceRepository;
-        this.hashTreeRepository = hashTreeRepository;
         this.logger = logger;
     }
     
@@ -31,7 +27,7 @@ public class PieceRequestMessageHandler : MessageHandler<PieceRequestMessage>
         PieceRequestMessage message,
         CancellationToken cancellationToken)
     {
-        logger.LogDebug($"Request : {message.Index}");
+        logger.LogDebug($"Request piece: {message.Index}");
         var reader = await pieceRepository.CreateReader(context.SharedFile.Hash, cancellationToken);
         var readResult = await reader.Read(message.Index, cancellationToken);
         if (readResult.TryGetError(out var shard, out var error))

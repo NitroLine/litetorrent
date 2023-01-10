@@ -1,3 +1,7 @@
-﻿namespace LiteTorrent.Backend.Dto;
+﻿using System.Text.Json.Serialization;
 
-public record DtoStartDownloadingInfo();
+namespace LiteTorrent.Backend.Dto;
+
+public record DtoStartDownloadingInfo(
+    [property: JsonPropertyName("hosts")] string[] Hosts, // DON'T CHANGE PROPERTIES ORDER
+    [property: JsonPropertyName("hashBase32")] string HashBase32); // DON'T RENAME TO "hash"

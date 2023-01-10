@@ -9,6 +9,7 @@ namespace LiteTorrent.Domain.Services.PieceExchange.Transport;
 
 public class Peer
 {
+    // ReSharper disable once NotAccessedField.Local
     private readonly string id;
     private readonly WebSocket webSocket;
     private readonly byte[] buffer = new byte[40960];

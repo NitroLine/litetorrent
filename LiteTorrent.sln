@@ -3,6 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_auxiliary", "_auxiliary", "{476D051F-A554-4BDE-AFEC-1A2B3D0944ED}"
 	ProjectSection(SolutionItems) = preProject
 		.gitignore = .gitignore
+		readme.md = readme.md
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "LiteTorrent", "LiteTorrent", "{DCEFB6A5-C25D-4431-9962-47BB09F17560}"

@@ -24,5 +24,10 @@ public static class ErrorRegistry
         {
             return new Error("Connection is closed");
         }
+
+        public static Error RequestedFileIsDownloading()
+        {
+            return new Error("Requested file is downloading");
+        }
     }
 }

@@ -6,6 +6,7 @@ namespace LiteTorrent.Domain.Services.LocalStorage.Pieces;
 
 public class PieceWriter
 {
+    private readonly string fileFullName;
     private readonly SharedFile sharedFile;
     private readonly string basePath;
 
@@ -13,9 +14,9 @@ public class PieceWriter
         SharedFile sharedFile,
         string basePath)
     {
-        var path = Path.Join(basePath, sharedFile.RelativePath);
-        if (!File.Exists(path))
-            throw new FileNotFoundException();
+        fileFullName = Path.Join(basePath, sharedFile.RelativePath);
+        if (!File.Exists(fileFullName))
+            throw new FileNotFoundException(fileFullName);
         
         this.sharedFile = sharedFile;
         this.basePath = basePath;
@@ -26,7 +27,7 @@ public class PieceWriter
         Piece piece,
         CancellationToken cancellationToken)
     {
-        await using var fileLock = await LocalStorageHelper.FilePool.GetToWrite(basePath);
+        await using var fileLock = await LocalStorageHelper.FilePool.GetToWrite(fileFullName);
         
         var result = await WriteInStream(fileLock.FileStream, piece, cancellationToken);
         

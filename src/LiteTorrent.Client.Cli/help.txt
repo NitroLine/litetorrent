@@ -21,8 +21,8 @@ show
     (hash, relativePath, downloadedCount, totalCount)
     
 
-download HASH HOST1, [HOST2, ...]
-    Stop previous downloading and start downloading file with HASH from HOST1, [HOST2, ...]
+download HASH_BASE32 HOST1, [HOST2, ...]
+    Stop previous downloading and start downloading file with HASH_BASE32 from HOST1, [HOST2, ...]
 
 
 stop

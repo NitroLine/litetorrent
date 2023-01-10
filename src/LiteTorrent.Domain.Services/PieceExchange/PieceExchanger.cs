@@ -2,7 +2,6 @@
 using LiteTorrent.Core;
 using LiteTorrent.Domain.Services.Common;
 using LiteTorrent.Domain.Services.LocalStorage.HashTrees;
-using LiteTorrent.Domain.Services.LocalStorage.SharedFiles;
 using LiteTorrent.Domain.Services.PieceExchange.Messages;
 using LiteTorrent.Domain.Services.PieceExchange.Transport;
 using Microsoft.Extensions.Logging;
@@ -15,17 +14,17 @@ public class PieceExchanger
     private readonly TorrentServer server;
     private readonly TorrentConnector connector;
     private readonly HandlerResolver handlerResolver;
-    private readonly SharedFileRepository sharedFileRepository;
     private readonly HashTreeRepository hashTreeRepository;
     private readonly ILogger<PieceExchanger> logger;
 
-    private readonly Hash? downloadingFileHash; 
+    private CancellationTokenSource? source;
+    private Task<Result<Unit>>? currentDownloading;
+    private Hash? downloadingFileHash;
 
     public PieceExchanger(
         TorrentServer server,
         TorrentConnector connector,
         HandlerResolver handlerResolver,
-        SharedFileRepository sharedFileRepository,
         HashTreeRepository hashTreeRepository,
         ILogger<PieceExchanger> logger)
     {
@@ -34,7 +33,6 @@ public class PieceExchanger
         this.server = server;
         this.connector = connector;
         this.handlerResolver = handlerResolver;
-        this.sharedFileRepository = sharedFileRepository;
         this.hashTreeRepository = hashTreeRepository;
         this.logger = logger;
     }
@@ -43,18 +41,36 @@ public class PieceExchanger
     {
         while (!cancellationToken.IsCancellationRequested) 
         {
-            var peer = await server.Accept(peerId, cancellationToken);
-    #pragma warning disable CS4014
+            var peer = await server.Accept(peerId, downloadingFileHash, cancellationToken);
+#pragma warning disable CS4014
             ExceptionHelper.HandleException(StartReceiving(peer, cancellationToken), logger);
-    #pragma warning restore CS4014
+#pragma warning restore CS4014
             await hashTreeRepository.CreateOrReplace(peer.Context.SharedFile.HashTree);
         }
     }
 
-    public Task<Hash> GetDownloadingFile()
+    public Task<Hash?> GetDownloadingFile()
     {
-        return Task.FromResult(Hash.CreateFromRaw(new ReadOnlyMemory<byte>()));
+        return Task.FromResult(downloadingFileHash);
     }
+
+    public async Task StartDownloading(
+        IEnumerable<IPEndPoint> hosts,
+        SharedFile sharedFile,
+        CancellationToken cancellationToken)
+    {
+        if (currentDownloading is not null)
+        {
+            source!.Cancel();
+            
+            logger.LogDebug("Trying to stop current downloading");
+            await currentDownloading!;
+        }
+        
+        source = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        currentDownloading = TryDownload(hosts, sharedFile, source.Token);
+        downloadingFileHash = sharedFile.Hash;
+    } 
 
     /// <summary>
     /// Try to download file from given hosts.  
@@ -62,44 +78,68 @@ public class PieceExchanger
     /// <returns>
     /// If all file pieces were downloaded it returns Result.Ok else it returns Result with error 
     /// </returns>
+    // ReSharper disable once MemberCanBePrivate.Global
     public async Task<Result<Unit>> TryDownload(
-        DnsEndPoint[] hosts,
+        IEnumerable<IPEndPoint> hosts,
         SharedFile sharedFile,
         CancellationToken cancellationToken)
     {
-        while (!cancellationToken.IsCancellationRequested)
+        foreach (var host in hosts)
         {
-            foreach (var host in hosts)
-            {
-                logger.LogInformation("Try to connect to {host}", host);
-                
-                var peer = await connector.Connect(sharedFile, host, cancellationToken);
-#pragma warning disable CS4014
-                await ExceptionHelper.HandleException(
-#pragma warning restore CS4014
-                    HandleDownloadingPeer(peer, cancellationToken),
-                    logger);
-                    
-                await hashTreeRepository.CreateOrReplace(peer.Context.SharedFile.HashTree);
+            if (cancellationToken.IsCancellationRequested)
+                break;
+            
+            logger.LogInformation("Try to connect to {host}", host);
 
-                await peer.Close(cancellationToken);
+            // ReSharper disable once RedundantAssignment
+            var peer = (Peer)null!;
+            try
+            {
+                peer = await connector.Connect(sharedFile, host, cancellationToken);
             }
+            catch (TimeoutException)
+            {
+                logger.LogWarning("Connection attempt to {host} is failed", host);
+                continue;
+            }
+
+            await ExceptionHelper.HandleException(
+                HandleDownloadingPeer(peer, cancellationToken),
+                logger);
+                    
+            await hashTreeRepository.CreateOrReplace(peer.Context.SharedFile.HashTree);
+
+            await peer.Close(cancellationToken);
         }
+            
+        source = null;
+        currentDownloading = null;
+        downloadingFileHash = null;
 
         return Result.Ok;
     }
 
     private async Task HandleDownloadingPeer(Peer peer, CancellationToken cancellationToken)
     {
-#pragma warning disable CS4014
-        StartReceiving(peer, cancellationToken);
-#pragma warning restore CS4014
+        var likedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        
+        await await Task.WhenAny(
+            StartReceiving(peer, likedTokenSource.Token), 
+            StartSendingPieceRequests(peer, likedTokenSource.Token));
+        
+        likedTokenSource.Cancel();
+    }
+
+    private async Task StartSendingPieceRequests(Peer peer, CancellationToken cancellationToken)
+    {
         var requiredShards = peer.Context.SharedFile.HashTree.GetLeafStates();
         for (var i = 0; i < requiredShards.Count; i++)
         {
-            if (!requiredShards.Get(i))
+            if (requiredShards.Get(i))
                 continue;
-
+           
+            logger.LogDebug("Try to request piece");
+            
             await peer.Send(new PieceRequestMessage((ulong)i), cancellationToken);
         }
     }

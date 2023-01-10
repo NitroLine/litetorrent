@@ -42,8 +42,8 @@ public class Startup : StartupBase
             .AddSingleton<PieceResponseMessageHandler>()
             .AddSingleton<PieceExchanger>();
 
-        // services
-        //     .AddHostedService<LiteTorrentService>();
+        services
+            .AddHostedService<LiteTorrentService>();
         
         services
             .AddLogging(builder => builder.AddConsole())

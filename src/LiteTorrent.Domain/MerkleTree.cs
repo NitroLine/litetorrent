@@ -20,8 +20,11 @@ public class MerkleTree
 
     private readonly Queue<Action> addQueue = new();
 
+    // ReSharper disable once MemberCanBePrivate.Global
     public MerkleTree(int count)
     {
+        pieces = Hash.CreateArray(count);
+        
         while (count != 0)
         {
             var leafCount = (int)Math.Pow(2, (int)Math.Log2(count));
@@ -31,7 +34,6 @@ public class MerkleTree
         }
 
         rootTree = Hash.CreateArray(trees.Count * 2 - 1);
-        pieces = Hash.CreateArray(count);
     }
 
     public MerkleTree(int count, Hash rootHash) : this(count)
@@ -49,6 +51,7 @@ public class MerkleTree
 
     public MerkleTree(Hash[] pieces) : this(pieces.Length)
     {
+        this.pieces = pieces.ToArray();
         BuildAllTree(pieces);
     }
 

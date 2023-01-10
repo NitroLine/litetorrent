@@ -1,5 +1,7 @@
 ﻿using System.Net.Sockets;
 using System.Net.WebSockets;
+using LiteTorrent.Core;
+using LiteTorrent.Domain.Services.Common;
 using LiteTorrent.Domain.Services.LocalStorage.SharedFiles;
 using LiteTorrent.Domain.Services.PieceExchange.Messages;
 using LiteTorrent.Domain.Services.PieceExchange.Serialization;
@@ -27,8 +29,23 @@ public class TorrentServer
         
         logger.LogInformation("Torrent Distributing was started at {ip}", transportConfiguration.TorrentEndpoint);
     }
+
+    public async Task<Peer> Accept(string peerId, Hash? excludeHash, CancellationToken cancellationToken)
+    {
+        var peer = (Peer?)null;
+        while (!cancellationToken.IsCancellationRequested)
+        {
+            var result = await TryAccept(peerId, excludeHash, cancellationToken);
+            if (!result.TryGetError(out peer, out var error))
+                break;
+            
+            logger.LogDebug(error.Message);
+        }
+
+        return peer!;
+    }
     
-    public async Task<Peer> Accept(string peerId, CancellationToken cancellationToken)
+    private async Task<Result<Peer>> TryAccept(string peerId, Hash? excludeHash, CancellationToken cancellationToken)
     {
         var socket = await socketEndpoint.AcceptAsync(cancellationToken);
         var ws = WebSocket.CreateFromStream(new NetworkStream(socket), new WebSocketCreationOptions {IsServer = true});
@@ -38,10 +55,13 @@ public class TorrentServer
         var buffer = new byte[65536];
         var result = await ws.ReceiveAsync(buffer, cancellationToken);
         var initMessage = (HandshakeInitMessage)MessageSerializer.Deserialize(buffer.AsMemory()[..result.Count]);
-        
+
+        if (excludeHash is not null && initMessage.FileHash == excludeHash)
+            return ErrorRegistry.Peer.RequestedFileIsDownloading();
+
         var getResult = await sharedFileRepository.Get(initMessage.FileHash, cancellationToken);
         if (getResult.TryGetError(out var sharedFile, out var error))
-            throw new Exception(error.Message); // TODO: custom exceptions
+            return error; // TODO: custom exceptions
 
         await ws.SendAsync(
             MessageSerializer.Serialize(new HandshakeAckMessage(peerId, sharedFile.Hash)),

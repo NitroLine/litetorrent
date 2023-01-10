@@ -14,7 +14,7 @@ public sealed class FileLock : IAsyncDisposable
 
     public async ValueTask DisposeAsync()
     {
-        await FileStream.DisposeAsync();
         semaphore.Release();
+        await FileStream.DisposeAsync();
     }
 }

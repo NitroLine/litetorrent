@@ -6,10 +6,12 @@ namespace LiteTorrent.Backend;
 
 public static class EntryPoint
 {
-    public static async Task Main()
+    public static async Task Main(string[] args)
     {
+        var port = args.Length < 1 ? 3000 : int.Parse(args[0]);
+        
         var host = WebHost.CreateDefaultBuilder()
-            .UseKestrel(options => options.Listen(IPAddress.Loopback, 3000))
+            .UseKestrel(options => options.Listen(IPAddress.Loopback, port))
             .UseStartup<Startup>()
             .Build();
         

@@ -5,14 +5,15 @@ namespace LiteTorrent.Domain.Services.LocalStorage.Pieces;
 
 public class PieceReader
 {
+    private readonly string fileFullName;
     private readonly SharedFile sharedFile;
     private readonly string basePath;
 
     public PieceReader(SharedFile sharedFile, string basePath)
     {
-        var path = Path.Join(basePath, sharedFile.RelativePath);
-        if (!File.Exists(path))
-            throw new FileNotFoundException(path);
+        fileFullName = Path.Join(basePath, sharedFile.RelativePath);
+        if (!File.Exists(fileFullName))
+            throw new FileNotFoundException(fileFullName);
         
         this.sharedFile = sharedFile;
         this.basePath = basePath;
@@ -23,7 +24,7 @@ public class PieceReader
         ulong index, 
         CancellationToken cancellationToken)
     {
-        await using var fileLock = await LocalStorageHelper.FilePool.GetToRead(basePath);
+        await using var fileLock = await LocalStorageHelper.FilePool.GetToRead(fileFullName);
 
         var readResult = await ReadFromStream(fileLock.FileStream, index, cancellationToken);
         if (readResult.TryGetError(out var shard, out var error))

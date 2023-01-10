@@ -63,7 +63,9 @@ public class SharedFileRepository
             createInfo,
             cancellationToken);
 
-        var hashTree = new MerkleTree((int)(dto.SizeInBytes / dto.ShardMaxSizeInBytes), hash);
+        var preCount = dto.SizeInBytes / dto.ShardMaxSizeInBytes;
+        var count = dto.SizeInBytes % dto.ShardMaxSizeInBytes == 0 ? preCount : preCount + 1;
+        var hashTree = new MerkleTree((int)count, hash);
         var saveResult = await hashTreeRepository.CreateOrReplace(hashTree);
         
         return saveResult.TryGetError(out _, out var error) ? error : Result.Ok;

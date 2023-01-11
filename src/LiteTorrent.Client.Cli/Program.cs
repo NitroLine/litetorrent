@@ -23,7 +23,7 @@ public static class Program
 
         if (args.Length < 1)
         {
-            Console.WriteLine("No command");
+            Console.WriteLine("No command. Use 'help'");
             return;
         }
         
@@ -146,6 +146,7 @@ public static class Program
     private static void ShowSharedFiles()
     {
         using var client = new HttpClient();
+        Console.WriteLine($"{baseUrl}/commands/show");
         using var request = new HttpRequestMessage(HttpMethod.Get, $"{baseUrl}/commands/show");
         request.Content = new ReadOnlyMemoryContent(ReadOnlyMemory<byte>.Empty);
         request.Content.Headers.ContentType = MediaTypeHeaderValue.Parse(MediaTypeNames.Application.Json);

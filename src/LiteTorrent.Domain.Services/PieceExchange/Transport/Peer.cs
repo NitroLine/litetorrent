@@ -39,21 +39,24 @@ public class Peer
 
     public async IAsyncEnumerable<Result<object>> Receive([EnumeratorCancellation] CancellationToken cancellationToken)
     {
-        if (IsClosed)
-            throw new InvalidOperationException();
-        
-        var receiveResult = await webSocket.ReceiveAsync(buffer, cancellationToken);
-        if (receiveResult.MessageType == WebSocketMessageType.Close)
+        while (!cancellationToken.IsCancellationRequested)
         {
-            await Close(cancellationToken);
-            
-            yield return ErrorRegistry.Peer.ConnectionIsClosed();
-            yield break;
-        }
-
-        yield return MessageSerializer.Deserialize(buffer);
+            if (IsClosed)
+                throw new InvalidOperationException();
         
-        Array.Fill<byte>(buffer, 0);
+            var receiveResult = await webSocket.ReceiveAsync(buffer, cancellationToken);
+            if (receiveResult.MessageType == WebSocketMessageType.Close)
+            {
+                await Close(cancellationToken);
+            
+                yield return ErrorRegistry.Peer.ConnectionIsClosed();
+                yield break;
+            }
+
+            yield return MessageSerializer.Deserialize(buffer);
+        
+            Array.Fill<byte>(buffer, 0);
+        }
     }
 
     public Task Close(CancellationToken cancellationToken)

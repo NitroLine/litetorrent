@@ -1,7 +1,6 @@
 ﻿using System.Net;
 using System.Net.Sockets;
 using System.Net.WebSockets;
-using LiteTorrent.Core;
 using LiteTorrent.Domain.Services.PieceExchange.Messages;
 using LiteTorrent.Domain.Services.PieceExchange.Serialization;
 
@@ -29,11 +28,11 @@ public class TorrentConnector
             cancellationToken);
         
         var buffer = new byte[65536];
-        var result = await ws.ReceiveAsync(buffer, cancellationToken).WithTimeout();
+        var result = await ws.ReceiveAsync(buffer, cancellationToken);
         var ackMessage = (HandshakeAckMessage)MessageSerializer.Deserialize(buffer.AsMemory()[..result.Count]);
         
         Array.Fill(buffer, (byte)0);
-        result = await ws.ReceiveAsync(buffer, cancellationToken).WithTimeout();
+        result = await ws.ReceiveAsync(buffer, cancellationToken);
         var bitfield = (BitfieldMessage)MessageSerializer.Deserialize(buffer.AsMemory()[..result.Count]);
         
         await ws.SendAsync(

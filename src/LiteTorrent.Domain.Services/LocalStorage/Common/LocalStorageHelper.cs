@@ -17,27 +17,23 @@ public static class LocalStorageHelper
             HashResolver.Instance,
             DnsEndpointResolver.Instance));
 
-    private static readonly FileStreamOptions DefaultFileStreamOptionsToRead = new()
+    private static readonly FileStreamOptions OptionsToRead = new()
     {
         Mode = FileMode.Open,
         Access = FileAccess.Read
     };
 
-    private static readonly FileStreamOptions DefaultFileStreamOptionsToWrite = new()
+    private static readonly FileStreamOptions OptionsToWrite = new()
     {
         Mode = FileMode.OpenOrCreate,
         Access = FileAccess.Write
     };
-
-    // public static FileStream GetFileStreamToWrite(string path)
-    // {
-    //     return new FileStream(path, DefaultFileStreamOptionsToWrite);
-    // }
-    //
-    // public static FileStream GetFileStreamToRead(string path)
-    // {
-    //     return new FileStream(path, DefaultFileStreamOptionsToRead);
-    // }
+    
+    private static readonly FileStreamOptions OptionsToAppend = new()
+    {
+        Mode = FileMode.Append,
+        Access = FileAccess.Write
+    };
 
     public static string GetFilePath(string baseDir, Hash hash)
     {
@@ -63,11 +59,16 @@ public static class LocalStorageHelper
 
     public static Task<FileLock> GetToRead(this FilePool pool, string fullFileName)
     {
-        return pool.GetAsync(fullFileName, DefaultFileStreamOptionsToRead);
+        return pool.GetAsync(fullFileName, OptionsToRead);
     }
     
     public static Task<FileLock> GetToWrite(this FilePool pool, string fullFileName)
     {
-        return pool.GetAsync(fullFileName, DefaultFileStreamOptionsToWrite);
+        return pool.GetAsync(fullFileName, OptionsToWrite);
     }
+    
+    public static Task<FileLock> GetToAppend(this FilePool pool, string fullFileName)
+    {
+        return pool.GetAsync(fullFileName, OptionsToAppend);
+    } 
 }

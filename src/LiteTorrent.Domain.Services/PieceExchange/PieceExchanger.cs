@@ -43,7 +43,7 @@ public class PieceExchanger
         {
             var peer = await server.Accept(peerId, downloadingFileHash, cancellationToken);
 #pragma warning disable CS4014
-            ExceptionHelper.HandleException(StartReceiving(peer, cancellationToken), logger);
+            ExceptionHelper.HandleException(HandleReceivedMessages(peer, cancellationToken), logger);
 #pragma warning restore CS4014
             await hashTreeRepository.CreateOrReplace(peer.Context.SharedFile.HashTree);
         }
@@ -89,7 +89,7 @@ public class PieceExchanger
             if (cancellationToken.IsCancellationRequested)
                 break;
             
-            logger.LogInformation("Try to connect to {host}", host);
+            logger.LogWarning("Try to connect to {host}", host);
 
             // ReSharper disable once RedundantAssignment
             var peer = (Peer)null!;
@@ -103,9 +103,7 @@ public class PieceExchanger
                 continue;
             }
 
-            await ExceptionHelper.HandleException(
-                HandleDownloadingPeer(peer, cancellationToken),
-                logger);
+            await ExceptionHelper.HandleException(SendPieceRequests(peer, cancellationToken), logger);
                     
             await hashTreeRepository.CreateOrReplace(peer.Context.SharedFile.HashTree);
         }
@@ -117,18 +115,7 @@ public class PieceExchanger
         return Result.Ok;
     }
 
-    private async Task HandleDownloadingPeer(Peer peer, CancellationToken cancellationToken)
-    {
-        var likedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-        
-        await await Task.WhenAny(
-            StartReceiving(peer, likedTokenSource.Token),
-            StartSendingPieceRequests(peer, likedTokenSource.Token));
-        
-        likedTokenSource.Cancel();
-    }
-
-    private async Task StartSendingPieceRequests(Peer peer, CancellationToken cancellationToken)
+    private async Task SendPieceRequests(Peer peer, CancellationToken cancellationToken)
     {
         var requiredShards = peer.Context.SharedFile.HashTree.GetLeafStates();
         for (var i = 0; i < requiredShards.Count; i++)
@@ -136,31 +123,45 @@ public class PieceExchanger
             if (requiredShards.Get(i))
                 continue;
            
-            logger.LogDebug("Try to request piece");
+            logger.LogWarning("Try to request piece {index}", i);
             
             await peer.Send(new PieceRequestMessage((ulong)i), cancellationToken);
         }
-        
+
+        var receiveEnumerable = peer
+            .Receive(cancellationToken)
+            .Take(requiredShards.Count)
+            .WithCancellation(cancellationToken);
+
+        await foreach (var receiveResult in receiveEnumerable)
+            await HandleReceivedMessage(peer, receiveResult, cancellationToken);
+
         if (!peer.IsClosed)
             await peer.Close(cancellationToken);
     }
 
-    private async Task StartReceiving(Peer peer, CancellationToken cancellationToken)
+    private async Task HandleReceivedMessages(Peer peer, CancellationToken cancellationToken)
     {
-        await foreach (var receiveResult in peer.Receive(cancellationToken))
+        await foreach (var receiveResult in peer.Receive(cancellationToken)) 
+            await HandleReceivedMessage(peer, receiveResult, cancellationToken);
+    }
+
+    private async Task HandleReceivedMessage(
+        Peer peer,
+        Result<object> receiveResult,
+        CancellationToken cancellationToken)
+    {
+        if (receiveResult.TryGetError(out var message, out var error))
         {
-            if (receiveResult.TryGetError(out var message, out var error))
-            {
-                logger.LogWarning(error.Message);
-                continue;
-            }
-
-            var handler = handlerResolver.Resolve(message);
-            var handleResult = await handler.Handle(peer.Context, message, cancellationToken);
-            if (!handleResult.IsNeedToSend)
-                continue;
-
-            await peer.Send(handleResult.Payload, cancellationToken);
+            logger.LogWarning(error.Message);
+            return;
         }
+
+        var handler = handlerResolver.Resolve(message);
+        var handleResult = await handler.Handle(peer.Context, message, cancellationToken);
+        if (!handleResult.IsNeedToSend)
+            return;
+
+        await peer.Send(handleResult.Payload, cancellationToken);
     }
 }

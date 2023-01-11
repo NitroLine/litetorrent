@@ -25,7 +25,7 @@ public class PieceWriter
         Piece piece,
         CancellationToken cancellationToken)
     {
-        await using var fileLock = await LocalStorageHelper.FilePool.GetToWrite(fileFullName);
+        await using var fileLock = await LocalStorageHelper.FilePool.GetToAppend(fileFullName);
         
         var result = await WriteInStream(fileLock.FileStream, piece, cancellationToken);
         

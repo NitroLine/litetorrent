@@ -39,7 +39,7 @@ public class TorrentServer
             if (!result.TryGetError(out peer, out var error))
                 break;
             
-            logger.LogDebug(error.Message);
+            logger.LogWarning(error.Message);
         }
 
         return peer!;

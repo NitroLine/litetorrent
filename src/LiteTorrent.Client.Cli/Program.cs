@@ -19,7 +19,7 @@ public static class Program
             .AddJsonFile("appsettings.json")
             .Build();
         
-        baseUrl = $"http://{config["BackendAddress"]}";
+        baseUrl = $"http://127.0.0.1:{config["BackendAddress"]}";
 
         if (args.Length < 1)
         {
@@ -146,7 +146,6 @@ public static class Program
     private static void ShowSharedFiles()
     {
         using var client = new HttpClient();
-        Console.WriteLine($"{baseUrl}/commands/show");
         using var request = new HttpRequestMessage(HttpMethod.Get, $"{baseUrl}/commands/show");
         request.Content = new ReadOnlyMemoryContent(ReadOnlyMemory<byte>.Empty);
         request.Content.Headers.ContentType = MediaTypeHeaderValue.Parse(MediaTypeNames.Application.Json);

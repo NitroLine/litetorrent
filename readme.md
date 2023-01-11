@@ -1,5 +1,5 @@
 # LiteTorrent
-
+Торрент-клиент  
 
 ## Структура
   - LiteTorrent.Core

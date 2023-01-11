@@ -19,9 +19,8 @@ public class MerkleTree
     public Hash RootHash { get; private set; }
 
     private readonly Queue<Action> addQueue = new();
-
-    // ReSharper disable once MemberCanBePrivate.Global
-    public MerkleTree(int count)
+    
+    private MerkleTree(int count)
     {
         pieces = Hash.CreateArray(count);
         
@@ -56,6 +55,8 @@ public class MerkleTree
         leafCounts = CalculateLeafCounts(pieces.Length);
         BuildAllTree(pieces);
     }
+
+    public int PieceCount => pieces.Length;
 
     public (List<Hash[]> Trees, Hash[] RootTree, Hash RootHash, Hash[] Pieces) GetInnerData()
     {
@@ -100,6 +101,11 @@ public class MerkleTree
         var currIndex = leafIndex + trees[treeIndex].Length - leafCounts[treeIndex];
         var itemHash = trees[treeIndex][currIndex];
         return GetTreePath(itemHash, treeIndex, currIndex);
+    }
+
+    public Hash GetPieceHash(int index)
+    {
+        return pieces[index];
     }
 
     private static List<int> CalculateLeafCounts(int pieceCount)

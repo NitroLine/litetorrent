@@ -4,7 +4,7 @@
     Register the created file in client.
     
 
-parse ABS_TORRENT_FILE_PATH
+parse ABS_TORRENT_FILE_PATH (not implemented)
     Parse torrent-file and print like JSON. 
     
 
@@ -12,7 +12,7 @@ add ABS_TORRENT_FILE_PATH
     Register shared file in client
     
 
-delete HASH
+delete HASH (not implemented)
     Unregister shared file in client. Downloaded data is saved.
 
 
@@ -25,7 +25,7 @@ download HASH_BASE32 HOST1, [HOST2, ...]
     Stop previous downloading and start downloading file with HASH_BASE32 from HOST1, [HOST2, ...]
 
 
-stop
+stop (not implemented)
     Stop current downloading
     
     

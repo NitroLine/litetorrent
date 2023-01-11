@@ -45,7 +45,7 @@ public class PieceExchanger
 #pragma warning disable CS4014
             ExceptionHelper.HandleException(HandleReceivedMessages(peer, cancellationToken), logger);
 #pragma warning restore CS4014
-            await hashTreeRepository.CreateOrReplace(peer.Context.SharedFile.HashTree);
+            // await hashTreeRepository.CreateOrReplace(peer.Context.SharedFile.HashTree);
         }
     }
 

@@ -8,6 +8,5 @@ public record DtoSharedFile(
     [property: JsonPropertyName("sizeInBytes")] ulong SizeInBytes,
     [property: JsonPropertyName("downloadedCount")] ulong DownloadedPieceCount,
     [property: JsonPropertyName("totalCount")] ulong TotalPieceCount,
-    [property: JsonPropertyName("isDownloading")] bool IsDownloading,
-    [property: JsonPropertyName("isDistributing")] bool IsDistributing
+    [property: JsonPropertyName("isDownloading")] bool IsDownloading
 );

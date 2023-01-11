@@ -137,7 +137,10 @@ public class PieceExchanger
             await HandleReceivedMessage(peer, receiveResult, cancellationToken);
 
         if (!peer.IsClosed)
+        {
+            logger.LogWarning("Stop downloading {hash}", peer.Context.SharedFile.Hash);
             await peer.Close(cancellationToken);
+        }
     }
 
     private async Task HandleReceivedMessages(Peer peer, CancellationToken cancellationToken)

@@ -76,14 +76,18 @@ public class CommandController : ControllerBase
         var downloadingFileHash = await pieceExchanger.GetDownloadingFile();
 
         return sharedFiles
-            .Select(sharedFile => new DtoSharedFile(
-                Base32.Rfc4648.Encode(sharedFile.Hash.Data.Span), 
-                sharedFile.RelativePath,
-                sharedFile.SizeInBytes,
-                0,
-                0,
-                downloadingFileHash is not null && sharedFile.Hash == downloadingFileHash, 
-                false))
+            .Select(sharedFile =>
+            {
+                var leafStates = sharedFile.HashTree.GetLeafStates();
+                
+                return new DtoSharedFile(
+                    Base32.Rfc4648.Encode(sharedFile.Hash.Data.Span),
+                    sharedFile.RelativePath,
+                    sharedFile.SizeInBytes,
+                    (ulong)leafStates.CountTrue(),
+                    (ulong)leafStates.Count,
+                    downloadingFileHash is not null && sharedFile.Hash == downloadingFileHash);
+            })
             .ToArray();
     }
 

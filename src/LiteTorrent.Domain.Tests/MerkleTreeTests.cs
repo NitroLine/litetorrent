@@ -50,4 +50,11 @@ public class Tests
         leafStates.CountTrue().Should().Be(1);
         leafStates[1].Should().BeTrue();
     }
+
+    [Test]
+    public void GetPath()
+    {
+        var merkleTree = new MerkleTree(14, fullMerkleTree.RootHash);
+        merkleTree.GetPath(12).ToArray().Should();
+    }
 }

@@ -176,7 +176,7 @@ public class MerkleTree
         if (index == 0)
         {
             var treeIndex = arrayIndex * 2 + (arrayIndex == rootTree.Length - 1 ? 0 : 1);
-            foreach (var hash in  GetRootPath(lastHash, treeIndex))
+            foreach (var hash in GetRootPath(lastHash, treeIndex))
             {
                 yield return hash;
             }

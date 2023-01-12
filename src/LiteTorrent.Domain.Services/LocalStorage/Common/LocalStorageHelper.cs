@@ -25,13 +25,13 @@ public static class LocalStorageHelper
 
     private static readonly FileStreamOptions OptionsToWrite = new()
     {
-        Mode = FileMode.OpenOrCreate,
+        Mode = FileMode.Create,
         Access = FileAccess.Write
     };
     
     private static readonly FileStreamOptions OptionsToAppend = new()
     {
-        Mode = FileMode.Append,
+        Mode = FileMode.OpenOrCreate,
         Access = FileAccess.Write
     };
 

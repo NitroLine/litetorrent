@@ -46,7 +46,7 @@ public class Startup : StartupBase
             .AddHostedService<LiteTorrentService>();
         
         services
-            .AddLogging(builder => builder.AddConsole().AddDebug())
+            .AddLogging(builder => builder.AddConsole().AddDebug()) //TODO: ADD DEBUG LEVEL LOGS
             .AddMvcCore()
             .AddJsonFormatters();
     }

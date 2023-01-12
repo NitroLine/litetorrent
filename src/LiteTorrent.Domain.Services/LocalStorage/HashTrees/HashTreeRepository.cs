@@ -31,6 +31,8 @@ public class HashTreeRepository
             fileLock.FileStream,
             new DtoHashTree(trees, rootTree, rootHash, pieces),
             Options);
+        
+        await fileLock.FileStream.FlushAsync();
 
         return Result.Ok;
     }

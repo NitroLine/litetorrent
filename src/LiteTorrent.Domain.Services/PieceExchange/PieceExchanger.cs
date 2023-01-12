@@ -45,7 +45,6 @@ public class PieceExchanger
 #pragma warning disable CS4014
             ExceptionHelper.HandleException(HandleReceivedMessages(peer, cancellationToken), logger);
 #pragma warning restore CS4014
-            // await hashTreeRepository.CreateOrReplace(peer.Context.SharedFile.HashTree);
         }
     }
 
@@ -120,7 +119,7 @@ public class PieceExchanger
         var requiredShards = peer.Context.SharedFile.HashTree.GetLeafStates();
         for (var i = 0; i < requiredShards.Count; i++)
         {
-            if (requiredShards.Get(i))
+            if (requiredShards.Get(i) || !peer.Context.OtherBitfield.Get(i))
                 continue;
            
             logger.LogWarning("Try to request piece {index}", i);
@@ -130,11 +129,19 @@ public class PieceExchanger
 
         var receiveEnumerable = peer
             .Receive(cancellationToken)
-            .Take(requiredShards.Count)
+            .Take(requiredShards.Count - requiredShards.CountTrue())
+            .WithTimeoutForMoveNext()
             .WithCancellation(cancellationToken);
 
-        await foreach (var receiveResult in receiveEnumerable)
-            await HandleReceivedMessage(peer, receiveResult, cancellationToken);
+        try
+        {
+            await foreach (var receiveResult in receiveEnumerable)
+                await HandleReceivedMessage(peer, receiveResult, cancellationToken);
+        }
+        catch (TimeoutException)
+        {
+            logger.LogWarning("Receive timeout");
+        }
 
         if (!peer.IsClosed)
         {
@@ -145,8 +152,10 @@ public class PieceExchanger
 
     private async Task HandleReceivedMessages(Peer peer, CancellationToken cancellationToken)
     {
-        await foreach (var receiveResult in peer.Receive(cancellationToken)) 
+        await foreach (var receiveResult in peer.Receive(cancellationToken))
             await HandleReceivedMessage(peer, receiveResult, cancellationToken);
+
+        await hashTreeRepository.CreateOrReplace(peer.Context.SharedFile.HashTree);
     }
 
     private async Task HandleReceivedMessage(

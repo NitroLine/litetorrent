@@ -38,7 +38,7 @@ public class PieceResponseMessageHandler : MessageHandler<PieceResponseMessage>
         
         if (!isAdded)
         {
-            logger.LogWarning("Invalid Hash");
+            logger.LogWarning("Invalid Hash {index}", message.Index);
             return HandleResult.OkNotSend;
         }
         

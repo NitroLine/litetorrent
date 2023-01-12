@@ -132,96 +132,117 @@ public class MerkleTree
 
         return (leafIndex, treeIndex);
     }
-
+     
     private Hash ComputeTreeHash(Hash lastHash, int arrayIndex, int index, int pathIndex, Hash[] path)
     {
-        addQueue.Enqueue(new Action(arrayIndex, index, lastHash));
-        if (index == 0)
+        while (true)
         {
-            var treeIndex = arrayIndex * 2 + ((arrayIndex * 2) == rootTree.Length - 1 ? 0 : 1);
-            return ComputeRootHash(lastHash, treeIndex, pathIndex, path);
+            addQueue.Enqueue(new Action(arrayIndex, index, lastHash));
+            if (index == 0)
+            {
+                var treeIndex = arrayIndex * 2 + ((arrayIndex * 2) == rootTree.Length - 1 ? 0 : 1);
+                return ComputeRootHash(lastHash, treeIndex, pathIndex, path);
+            }
+
+            if (index % 2 == 0)
+            {
+                addQueue.Enqueue(new Action(arrayIndex, index - 1, path[pathIndex]));
+                var left = path[pathIndex];
+                lastHash = left.Concat(lastHash);
+                index = (index - 1) / 2;
+                pathIndex = ++pathIndex;
+                continue;
+            }
+
+            addQueue.Enqueue(new Action(arrayIndex, index + 1, path[pathIndex]));
+            var right = path[pathIndex];
+            lastHash = lastHash.Concat(right);
+            index = (index - 1) / 2;
+            pathIndex = ++pathIndex;
         }
-        
-        if (index % 2 == 0)
-        {
-            addQueue.Enqueue(new Action(arrayIndex, index - 1, path[pathIndex]));
-            var left = path[pathIndex];
-            return ComputeTreeHash(left.Concat(lastHash), arrayIndex,(index - 1) / 2, ++pathIndex, path);
-        }
-        addQueue.Enqueue(new Action(arrayIndex, index + 1, path[pathIndex]));
-        var right = path[pathIndex];
-        return ComputeTreeHash(lastHash.Concat(right), arrayIndex,(index - 1) / 2, ++pathIndex, path);
     }
 
     private Hash ComputeRootHash(Hash lastHash, int treeIndex, int pathIndex, Hash[] path)
     {
-        addQueue.Enqueue(new Action(-1, treeIndex, lastHash));
-        if (treeIndex == 0)
+        while (true)
         {
-            return lastHash;
+            addQueue.Enqueue(new Action(-1, treeIndex, lastHash));
+            if (treeIndex == 0)
+            {
+                return lastHash;
+            }
+
+            if (treeIndex % 2 == 0)
+            {
+                addQueue.Enqueue(new Action(-1, treeIndex - 1, path[pathIndex]));
+                var left = path[pathIndex];
+                lastHash = left.Concat(lastHash);
+                treeIndex -= 2;
+                pathIndex = ++pathIndex;
+                continue;
+            }
+
+            addQueue.Enqueue(new Action(-1, treeIndex + 1, path[pathIndex]));
+            var right = path[pathIndex];
+            lastHash = lastHash.Concat(right);
+            treeIndex -= 1;
+            pathIndex = ++pathIndex;
         }
-        if (treeIndex % 2 == 0)
-        {
-            addQueue.Enqueue(new Action(-1, treeIndex - 1, path[pathIndex]));
-            var left = path[pathIndex];
-            return ComputeRootHash(left.Concat(lastHash), treeIndex - 2, ++pathIndex, path);
-        }
-        addQueue.Enqueue(new Action(-1, treeIndex + 1, path[pathIndex]));
-        var right = path[pathIndex];
-        return ComputeRootHash(lastHash.Concat(right), treeIndex - 1, ++pathIndex, path);
     }
-    
+
     private IEnumerable<Hash> GetTreePath(Hash lastHash, int arrayIndex, int index)
     {
-        if (index == 0)
+        while (true)
         {
-            var treeIndex = arrayIndex * 2 + ((arrayIndex * 2) == rootTree.Length - 1 ? 0 : 1);
-            foreach (var hash in GetRootPath(lastHash, treeIndex))
+            if (index == 0)
             {
-                yield return hash;
+                var treeIndex = arrayIndex * 2 + ((arrayIndex * 2) == rootTree.Length - 1 ? 0 : 1);
+                foreach (var hash in GetRootPath(lastHash, treeIndex))
+                {
+                    yield return hash;
+                }
+
+                yield break;
             }
-            yield break;
-        }
-        if (index % 2 == 0)
-        {
-            var left = trees[arrayIndex][index - 1];
-            yield return left;
-            foreach (var hash in GetTreePath(left.Concat(lastHash), arrayIndex,(index - 1) / 2))
+
+            if (index % 2 == 0)
             {
-                yield return hash;
+                var left = trees[arrayIndex][index - 1];
+                yield return left;
+                lastHash = left.Concat(lastHash);
+                index = (index - 1) / 2;
+                continue;
             }
-            yield break;
-        }
-        var right = trees[arrayIndex][index + 1];
-        yield return right;
-        foreach (var hash in GetTreePath(lastHash.Concat(right), arrayIndex,(index - 1) / 2))
-        {
-            yield return hash;
+
+            var right = trees[arrayIndex][index + 1];
+            yield return right;
+            lastHash = lastHash.Concat(right);
+            index = (index - 1) / 2;
         }
     }
 
     private IEnumerable<Hash> GetRootPath(Hash lastHash, int treeIndex)
     {
-        if (treeIndex == 0)
+        while (true)
         {
-           
-            yield break;
-        }
-        if (treeIndex % 2 == 0)
-        {
-            var left = rootTree[treeIndex - 1];
-            yield return left;
-            foreach (var hash in  GetRootPath(left.Concat(lastHash), treeIndex - 2))
+            if (treeIndex == 0)
             {
-                yield return hash;
+                yield break;
             }
-            yield break;
-        }
-        var right = rootTree[treeIndex + 1];
-        yield return right;
-        foreach (var hash in GetRootPath(lastHash.Concat(right), treeIndex - 1))
-        {
-            yield return hash;
+
+            if (treeIndex % 2 == 0)
+            {
+                var left = rootTree[treeIndex - 1];
+                yield return left;
+                lastHash = left.Concat(lastHash);
+                treeIndex -= 2;
+                continue;
+            }
+
+            var right = rootTree[treeIndex + 1];
+            yield return right;
+            lastHash = lastHash.Concat(right);
+            treeIndex -= 1;
         }
     }
 

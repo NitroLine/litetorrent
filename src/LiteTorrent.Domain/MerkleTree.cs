@@ -138,7 +138,7 @@ public class MerkleTree
         addQueue.Enqueue(new Action(arrayIndex, index, lastHash));
         if (index == 0)
         {
-            var treeIndex = arrayIndex * 2 + (arrayIndex == rootTree.Length - 1 ? 0 : 1);
+            var treeIndex = arrayIndex * 2 + ((arrayIndex * 2) == rootTree.Length - 1 ? 0 : 1);
             return ComputeRootHash(lastHash, treeIndex, pathIndex, path);
         }
         

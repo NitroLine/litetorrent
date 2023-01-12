@@ -69,7 +69,7 @@ public class PieceExchanger
         source = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         currentDownloading = TryDownload(hosts, sharedFile, source.Token);
         downloadingFileHash = sharedFile.Hash;
-    } 
+    }
 
     /// <summary>
     /// Try to download file from given hosts.  
@@ -117,30 +117,38 @@ public class PieceExchanger
     private async Task SendPieceRequests(Peer peer, CancellationToken cancellationToken)
     {
         var requiredShards = peer.Context.SharedFile.HashTree.GetLeafStates();
-        for (var i = 0; i < requiredShards.Count; i++)
+        var countFalse = requiredShards.Count - requiredShards.CountTrue(); 
+        var requestCount = 0;
+        const int requestOnIterationCount = 100;
+        while (requestCount < countFalse)
         {
-            if (requiredShards.Get(i) || !peer.Context.OtherBitfield.Get(i))
-                continue;
-           
-            logger.LogWarning("Try to request piece {index}", i);
-            
-            await peer.Send(new PieceRequestMessage((ulong)i), cancellationToken);
-        }
+            for (var i = requestCount; i < Math.Min(requestCount + requestOnIterationCount, countFalse); i++)
+            {
+                if (requiredShards.Get(i) || !peer.Context.OtherBitfield.Get(i))
+                    continue;
 
-        var receiveEnumerable = peer
-            .Receive(cancellationToken)
-            .Take(requiredShards.Count - requiredShards.CountTrue())
-            .WithTimeoutForMoveNext()
-            .WithCancellation(cancellationToken);
+                logger.LogWarning("Try to request piece {index}", i);
 
-        try
-        {
-            await foreach (var receiveResult in receiveEnumerable)
-                await HandleReceivedMessage(peer, receiveResult, cancellationToken);
-        }
-        catch (TimeoutException)
-        {
-            logger.LogWarning("Receive timeout");
+                await peer.Send(new PieceRequestMessage((ulong)i), cancellationToken).WithTimeout(30000);
+            }
+
+            requestCount = Math.Min(requestCount + requestOnIterationCount, countFalse);
+
+            var receiveEnumerable = peer
+                .Receive(cancellationToken)
+                .Take(requestOnIterationCount)
+                .WithTimeoutForMoveNext()
+                .WithCancellation(cancellationToken);
+
+            try
+            {
+                await foreach (var receiveResult in receiveEnumerable)
+                    await HandleReceivedMessage(peer, receiveResult, cancellationToken);
+            }
+            catch (TimeoutException)
+            {
+                logger.LogWarning("Receive timeout");
+            }
         }
 
         if (!peer.IsClosed)

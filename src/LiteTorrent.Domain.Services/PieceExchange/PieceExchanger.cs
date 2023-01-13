@@ -43,7 +43,7 @@ public class PieceExchanger
         {
             var peer = await server.Accept(peerId, downloadingFileHash, cancellationToken);
 #pragma warning disable CS4014
-            ExceptionHelper.HandleException(HandleReceivedMessages(peer, cancellationToken), logger);
+            ExceptionHelper.HandleException(HandleIncomingConnection(peer, cancellationToken), logger);
 #pragma warning restore CS4014
         }
     }
@@ -132,23 +132,12 @@ public class PieceExchanger
                 await peer.Send(new PieceRequestMessage((ulong)i), cancellationToken).WithTimeout(30000);
             }
 
+            await HandleReceivedMessages(
+                peer,
+                Math.Min(requestOnIterationCount, countFalse - requestCount),
+                cancellationToken);
+
             requestCount = Math.Min(requestCount + requestOnIterationCount, countFalse);
-
-            var receiveEnumerable = peer
-                .Receive(cancellationToken)
-                .Take(requestOnIterationCount)
-                .WithTimeoutForMoveNext()
-                .WithCancellation(cancellationToken);
-
-            try
-            {
-                await foreach (var receiveResult in receiveEnumerable)
-                    await HandleReceivedMessage(peer, receiveResult, cancellationToken);
-            }
-            catch (TimeoutException)
-            {
-                logger.LogWarning("Receive timeout");
-            }
         }
 
         if (!peer.IsClosed)
@@ -158,7 +147,26 @@ public class PieceExchanger
         }
     }
 
-    private async Task HandleReceivedMessages(Peer peer, CancellationToken cancellationToken)
+    private async Task HandleReceivedMessages(Peer peer, int messagesCount, CancellationToken cancellationToken)
+    {
+        var receiveEnumerable = peer
+            .Receive(cancellationToken)
+            .Take(messagesCount)
+            .WithTimeoutForMoveNext()
+            .WithCancellation(cancellationToken);
+
+        try
+        {
+            await foreach (var receiveResult in receiveEnumerable)
+                await HandleReceivedMessage(peer, receiveResult, cancellationToken);
+        }
+        catch (TimeoutException)
+        {
+            logger.LogWarning("Receive timeout");
+        }
+    }
+
+    private async Task HandleIncomingConnection(Peer peer, CancellationToken cancellationToken)
     {
         await foreach (var receiveResult in peer.Receive(cancellationToken))
             await HandleReceivedMessage(peer, receiveResult, cancellationToken);

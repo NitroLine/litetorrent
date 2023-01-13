@@ -96,7 +96,7 @@ public class CommandController : ControllerBase
         [FromBody] DtoStartDownloadingInfo startDownloadingInfo,
         CancellationToken cancellationToken)
     {
-        var hash = Hash.CreateFromSha256(Base32.Rfc4648.Decode(startDownloadingInfo.HashBase32));
+        var hash = Hash.CreateFromSha256Unsafe(Base32.Rfc4648.Decode(startDownloadingInfo.HashBase32));
         var hosts = startDownloadingInfo.Hosts.Select(IPEndPoint.Parse).ToArray();
         
         var command = new StartDownloadingCommand(hash, hosts);

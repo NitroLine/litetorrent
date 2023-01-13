@@ -102,7 +102,7 @@ public class SharedFileRepository
     
     private static Hash GetHashFromFileName(string fileFullName)
     {
-        return Hash.CreateFromSha256(Base32.Rfc4648.Decode(new FileInfo(fileFullName).Name));
+        return Hash.CreateFromSha256Unsafe(Base32.Rfc4648.Decode(new FileInfo(fileFullName).Name));
     }
     
     private static string GetFileName(Hash hash) => Base32.Rfc4648.Encode(hash.Data.Span);

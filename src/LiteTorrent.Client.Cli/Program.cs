@@ -71,7 +71,7 @@ public static class Program
             return;
         }
         
-        var createInfo = new DtoCreateInfo(args[1], 32, args[2]);
+        var createInfo = new DtoCreateInfo(args[1], 1024, args[2]);
 
         using var client = new HttpClient();
         using var request = new HttpRequestMessage(HttpMethod.Post, $"{baseUrl}/commands/create");

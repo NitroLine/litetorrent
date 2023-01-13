@@ -31,12 +31,12 @@ public readonly struct Hash
         return new Hash(algorithm.ComputeHash(rawData.ToArray()));
     }
     
-    public static Hash CreateFromSha256(byte[] sha256Data)
+    public static Hash CreateFromSha256Unsafe(byte[] sha256Data)
     {
         if (sha256Data.Length != 32)
             throw new ArgumentException($"Sha256 has 32 bytes, but was {sha256Data.Length}");
             
-        return new Hash(sha256Data.ToArray());
+        return new Hash(sha256Data);
     }
     
     public static bool operator ==(Hash hash1, Hash hash2)

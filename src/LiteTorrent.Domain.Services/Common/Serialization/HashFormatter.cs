@@ -12,6 +12,6 @@ public class HashFormatter : IMessagePackFormatter<Hash>
 
     public Hash Deserialize(ref MessagePackReader reader, MessagePackSerializerOptions options)
     {
-        return Hash.CreateFromSha256(options.Resolver.GetFormatter<byte[]>().Deserialize(ref reader, options));
+        return Hash.CreateFromSha256Unsafe(options.Resolver.GetFormatter<byte[]>().Deserialize(ref reader, options));
     }
 }

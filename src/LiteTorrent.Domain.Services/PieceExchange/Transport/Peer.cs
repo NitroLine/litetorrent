@@ -12,13 +12,17 @@ public class Peer
     // ReSharper disable once NotAccessedField.Local
     private readonly string id;
     private readonly WebSocket webSocket;
-    private readonly byte[] buffer = new byte[40960];
+    private readonly byte[] buffer;
 
     public Peer(string id, WebSocket webSocket, ConnectionContext context)
     {
         this.id = id;
         this.webSocket = webSocket;
         Context = context;
+
+        var bufferSize = 2 * (context.SharedFile.PieceMaxSizeInBytes 
+                              + 32 * (int)Math.Log2(context.OtherBitfield.Count)); 
+        buffer = new byte[bufferSize];
     }
     
     public bool IsClosed { get; private set; }

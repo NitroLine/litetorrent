@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text;
 using FluentAssertions;
 using LiteTorrent.Core;
@@ -35,6 +36,23 @@ public class Tests
 
         isAdded.Should().BeFalse();
     }
+    
+    
+    [Test]
+    public void Performance()
+    {
+        var stopWatch = Stopwatch.StartNew();   
+        var tree = new MerkleTree(1000_000, Hash.Empty);
+        for (var i = 0; i < 1000_000; i++)
+        {
+            tree.GetPath(i).ToArray();
+        }
+        stopWatch.Stop();
+        Console.WriteLine("Excution time for {0} - {1} ms",
+            TestContext.CurrentContext.Test.Name,
+            stopWatch.ElapsedMilliseconds);
+    }
+
 
     [Test]
     public void GetLeafStates_AfterAdd_ContainsFlagOnAddIndex()
